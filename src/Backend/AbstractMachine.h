@@ -6,18 +6,47 @@ enum class MachineState { IDLE, WORKING, BROKEN, REPAIRING };
 class AbstractMachine : public SimulationObject {
 protected:
     MachineState m_state = MachineState::IDLE;
-    int m_processTime;       // 작업 소요 시간
-    int m_currentProgress = 0; 
-    float m_breakdownProb;   // 고장 확률
+
+    int m_processTime;
+    int m_currentProgress = 0;
+    float m_breakdownProb;
+    float m_health = 1.0f; // 0.0~1.0, 고장마다 감소
+
+    bool m_hasItem = false;       // 현재 처리 중인 아이템 보유 여부
+    bool m_outputReady = false;   // 완료된 아이템이 출력 대기 중
+
+    int m_repairTime;
+    int m_repairProgress = 0;
+    
+    int m_completedCount = 0;
+    int m_breakdownCount = 0;
+
+    const float m_brokenScale = 0.1f; // 고장 시 내구도 감소량
 
 public:
-   AbstractMachine(int procTime, float prob);
+    // repairTime: REPAIRING 상태에서 IDLE로 복귀까지 걸리는 틱 수
+    AbstractMachine(int procTime, float prob, int repairTime = 5);
+
     virtual string getMachineName() const = 0;
-    
-    // 캡슐화를 위한 Getter
+
     MachineState getState() const;
-    float getProgress() const;
-    
-    void repair();     // 수리 로직
-    void forceBreak(); // 강제 고장
+    float getProgress() const;       // 작업 or 수리 진행률 0.0~1.0
+    float getHealth() const;         // 기계 상태 (0.0~1.0)
+    int getProcessTime() const;      // 4 ticks 표시용
+    float getBrokenScale() const;
+    int getCompletedCount() const;
+    int getBreakdownCount() const;
+
+    // IDLE 상태일 때만 아이템을 수락하고 WORKING으로 전환
+    bool acceptItem();
+
+    // 작업 완료 아이템이 다음 컨베이어로 나갈 준비가 됐는지
+    bool hasOutputReady() const;
+
+    // FactorySimulation이 출력 아이템을 수거할 때 호출
+    void collectOutput();
+
+    void repair();
+    void forceBreak();
+    void reset();
 };
