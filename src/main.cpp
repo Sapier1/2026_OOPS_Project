@@ -8,6 +8,8 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include "Cutter.h"
+#include "MachineController.h"
 
 int main(int argc, char* argv[]) {
     // Initialize SDL
@@ -56,6 +58,10 @@ int main(int argc, char* argv[]) {
     
  /* End of CROSS-PLATFORM */
 
+    Cutter cutter;
+    MachineController ctrlCutter(&cutter);
+    int tick = 0;
+
     bool running = true;
     while (running)
     {
@@ -72,6 +78,9 @@ int main(int argc, char* argv[]) {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         
+        cutter.update(tick++);
+        MachineSnap snap = ctrlCutter.getSnapshot();
+
         // Your UI goes here
         ImGui::Begin("Hello ImGui!");
         ImGui::Text("Welcome to Dear ImGui!");
