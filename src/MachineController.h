@@ -14,5 +14,5 @@ public:
     void onForceBreakClicked();
 
     // UI 렌더링용 데이터 제공
-    MachineSnap getSnapshot();
+    MachineSnap getSnapshot() const;
 };
