@@ -8,9 +8,9 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
-#include "Cutter.h"
+#include "Backend/Cutter.h"
 #include "MachineController.h"
-
+#include "UI/MachineCard.h"
 int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -59,9 +59,9 @@ int main(int argc, char* argv[]) {
  /* End of CROSS-PLATFORM */
 
     Cutter cutter;
+    cutter.acceptItem();
     MachineController ctrlCutter(&cutter);
     int tick = 0;
-
     bool running = true;
     while (running)
     {
@@ -79,12 +79,12 @@ int main(int argc, char* argv[]) {
         ImGui::NewFrame();
         
         cutter.update(tick++);
+
         MachineSnap snap = ctrlCutter.getSnapshot();
 
         // Your UI goes here
-        ImGui::Begin("Hello ImGui!");
-        ImGui::Text("Welcome to Dear ImGui!");
-        ImGui::End();
+
+        renderMachineCard(ctrlCutter);
         
         // Render
         ImGui::Render();
@@ -93,6 +93,9 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
+            
+
+        SDL_Delay(1000);
     }
 
     // Cleanup
