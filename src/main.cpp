@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
         SDL_GL_SwapWindow(window);
             
 
-        SDL_Delay(1000);
+        SDL_Delay(500);
     }
 
     // Cleanup

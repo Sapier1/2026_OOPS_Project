@@ -1,6 +1,8 @@
 #pragma once
-#include "AbstractMachine.h"
+#include "MachineController.h"
 #include "MachineSnap.h"
+#include "Backend/AbstractMachine.h"
+
 
 class MachineController {
 private:

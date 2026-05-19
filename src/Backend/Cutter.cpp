@@ -1,7 +1,7 @@
 #include "Cutter.h"
 #include <cstdlib>
 
-Cutter::Cutter() : AbstractMachine(3, 0.02f, 4) {}
+Cutter::Cutter() : AbstractMachine(3, 0.0f, 4) {}
 // 3틱 작업, 2% 고장 확률, 4틱 수리 시간
 
 string Cutter::getMachineName() const { return "Sheet Metal Cutter"; }
