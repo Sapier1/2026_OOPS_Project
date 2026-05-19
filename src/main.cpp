@@ -3,32 +3,14 @@
 #define GL_SILENCE_DEPRECATION 
 #endif
 #include <SDL_opengl.h>
-#include<string>
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
-
-enum class MachineState
-{
-    Idle,
-    Working,
-    Broken
-};
-
-struct MachineSnapshot
-{
-    std::string name;
-
-    MachineState state;
-
-    float progress;
-
-    float health;
-
-    int queueDepth;
-};
+#include "Backend/Cutter.h"
+#include "MachineController.h"
+#include "UI/MachineCard.h"
 
 int main(int argc, char* argv[]) {
     // Initialize SDL
@@ -76,21 +58,12 @@ int main(int argc, char* argv[]) {
     ImGui_ImplOpenGL3_Init(glsl_version);
     
  /* End of CROSS-PLATFORM */
+
+    Cutter cutter;
+    cutter.acceptItem();
+    MachineController ctrlCutter(&cutter);
+    int tick = 0;
     bool running = true;
-    
- // MachinSnap 정의   
-    MachineSnapshot snap;
-
-    snap.name="Cutter";
-    snap.state=MachineState::Idle;
-    snap.progress=0.8f;
-    snap.health=0.3f;
-    snap.queueDepth=3;
-
-    ImVec4 StateColor;
-    ImVec4 BarColor;
-    const char* text;
-
     while (running)
     {
         // Handle events
@@ -106,75 +79,12 @@ int main(int argc, char* argv[]) {
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         
+        cutter.update(tick++);
+
+
         // Your UI goes here
-        ImGui::SetNextWindowSize(
-            ImVec2(800,400),
-            ImGuiCond_FirstUseEver
-        );
-        ImGui::Begin(snap.name.c_str()); //machine 이름
 
-        //상태 표시 및 색깔
-        switch(snap.state)
-        {
-            case MachineState::Working:
-                StateColor=ImVec4(0,1,0,1);
-                text="WORKING";
-                break;
-            case MachineState::Idle:
-                StateColor=ImVec4(1,1,1,1);
-                text="IDLE";
-                break;
-            case MachineState::Broken:
-                StateColor=ImVec4(1,0,0,1);
-                text="BROKEN";
-                break;
-        }
-        ImGui::TextColored(StateColor, text);
-        ImGui::Separator();
-        
-        //ProgressBar작성
-
-        ImGui::Text("Progress");
-        ImGui::ProgressBar(snap.progress,ImVec2(0.0f,0.0f));
-        ImGui::Spacing();
-
-        //Health Progressbar 작성
-        if (snap.health>=0.5f)
-        {
-            BarColor=ImVec4(0,1,0,1);
-        }
-        else if (snap.health<0.5f && snap.health>0.3f)
-        {
-            BarColor=ImVec4(1,0.8f,0,1);
-        }
-        else
-        {
-            BarColor=ImVec4(1,0,0,1);
-        }
-
-        ImGui::PushStyleColor(
-            ImGuiCol_PlotHistogram,
-            BarColor
-        );
-
-        ImGui::Text("Health");
-        ImGui::ProgressBar(snap.health,ImVec2(0.0f,0.0f));
-
-        ImGui::PopStyleColor();
-        ImGui::Spacing();
-        ImGui::Text("Queue: %d", snap.queueDepth);
-        
-        //고장, 수리 버튼
-        if(ImGui::Button("Break"))
-        {
-            snap.state=MachineState::Broken;
-        }
-        ImGui::SameLine();
-        if(ImGui::Button("Repair"))
-        {
-            snap.state=MachineState::Working;
-        }
-        ImGui::End();
+        renderMachineCard(ctrlCutter);
         
         // Render
         ImGui::Render();
@@ -183,6 +93,9 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
+            
+
+        SDL_Delay(1000);
     }
 
     // Cleanup
