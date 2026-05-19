@@ -11,7 +11,6 @@
 #include "Backend/Cutter.h"
 #include "MachineController.h"
 #include "UI/MachineCard.h"
-
 int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -81,6 +80,7 @@ int main(int argc, char* argv[]) {
         
         cutter.update(tick++);
 
+        MachineSnap snap = ctrlCutter.getSnapshot();
 
         // Your UI goes here
 
