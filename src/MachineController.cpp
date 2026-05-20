@@ -12,13 +12,14 @@ void MachineController::onForceBreakClicked() {
 
 MachineSnap MachineController::getSnapshot() const {
     if (!m_machine) return { "Unknown", 0, 0.0f };
-    return { 
-        m_machine->getMachineName(), 
-        (int)m_machine->getState(), 
+    return {
+        m_machine->getMachineName(),
+        (int)m_machine->getState(),
         m_machine->getProgress(),
+        0,                           // queueSize (현재 미구현)
+        5,                           // queueCapacity (기본값)
         m_machine->getCompletedCount(),
         m_machine->getHealth(),
         m_machine->getProcessTime()
-        //queueSize는 FactorySimulation에서 관리하는 별도의 대기열이 필요하므로, 현재는 0으로 고정
     };
 }

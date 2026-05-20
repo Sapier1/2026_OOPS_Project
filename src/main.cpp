@@ -3,6 +3,7 @@
 #define GL_SILENCE_DEPRECATION 
 #endif
 #include <SDL_opengl.h>
+#include <ctime>
 
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -11,6 +12,7 @@
 #include "Backend/Cutter.h"
 #include "MachineController.h"
 #include "UI/MachineCard.h"
+
 int main(int argc, char* argv[]) {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -59,10 +61,16 @@ int main(int argc, char* argv[]) {
  /* End of CROSS-PLATFORM */
 
     Cutter cutter;
-    cutter.acceptItem();
+    //cutter.acceptItem();
     MachineController ctrlCutter(&cutter);
     int tick = 0;
     bool running = true;
+
+    srand((unsigned int)time(nullptr));
+
+    Uint32 lastTickTime = SDL_GetTicks();
+    const Uint32 TICK_INTERVAL = 1000; // 1초마다 1틱
+
     while (running)
     {
         // Handle events
@@ -73,12 +81,18 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_QUIT) running = false;
         }
 
+        Uint32 now = SDL_GetTicks();
+        if (now - lastTickTime >= TICK_INTERVAL) {
+            if (cutter.hasOutputReady()) cutter.collectOutput();
+            if (cutter.getState() == MachineState::IDLE) cutter.acceptItem();
+            cutter.update(tick++);
+            lastTickTime = now;
+        }
+
         // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
-        
-        cutter.update(tick++);
 
         MachineSnap snap = ctrlCutter.getSnapshot();
 
@@ -93,9 +107,6 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
-            
-
-        SDL_Delay(1000);
     }
 
     // Cleanup
