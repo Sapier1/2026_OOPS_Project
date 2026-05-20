@@ -16,6 +16,12 @@ set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
 set(SOURCES 
     src/main.cpp
     
+    src/MachineController.cpp
+    src/UI/MachineCard.cpp
+
+    src/Backend/Cutter.cpp
+    src/Backend/AbstractMachine.cpp
+    src/Backend/Painter.cpp
     # Add your new source files here. Example:
     # src/GameManager.cpp
     # src/Player.cpp
