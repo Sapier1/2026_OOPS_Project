@@ -7,7 +7,7 @@ MachineState AbstractMachine::getState() const { return m_state; }
 
 float AbstractMachine::getProgress() const {
     if (m_state == MachineState::REPAIRING) {
-        // [추가 2] 수리 진행률도 0.0~1.0으로 반환
+        // 추가 : 수리 진행률도 0.0~1.0으로 반환
         return (m_repairTime > 0) ? (float)m_repairProgress / m_repairTime : 0.0f;
     }
     return (m_processTime > 0) ? (float)m_currentProgress / m_processTime : 0.0f;
@@ -18,6 +18,10 @@ int AbstractMachine::getProcessTime() const { return m_processTime; }
 float AbstractMachine::getBrokenScale() const { return m_brokenScale; }
 int AbstractMachine::getCompletedCount() const { return m_completedCount; }
 int AbstractMachine::getBreakdownCount() const  { return m_breakdownCount; }
+
+void AbstractMachine::setBreakdownProb(float prob) {
+    m_breakdownProb = prob;
+}
 
 bool AbstractMachine::acceptItem() {
     // IDLE 상태이고 현재 처리 중인 아이템이 없을 때만 수락
