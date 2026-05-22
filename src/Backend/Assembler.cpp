@@ -1,12 +1,11 @@
-#include "Painter.h"
+#include "Assembler.h"
 #include <cstdlib>
 
-Painter::Painter() : AbstractMachine(4, 0.02f, 5) {}
-// 4틱 작업, 2% 고장 확률, 5틱 수리 시간
+Assembler::Assembler() : AbstractMachine(5, 0.02f, 5) {}
 
-string Painter::getMachineName() const { return "Painter-01"; }
+string Assembler::getMachineName() const { return "Assembler-01"; }
 
-void Painter::update(int tick) {
+void Assembler::update(int tick) {
     // REPAIRING Process
     if (m_state == MachineState::REPAIRING) {
         m_repairProgress++;
