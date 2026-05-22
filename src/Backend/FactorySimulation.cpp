@@ -255,3 +255,7 @@ vector<EventEntry> FactorySimulation::getEventLog() const {
 void FactorySimulation::clearEventLog() {
     m_eventLog.clear();
 }
+
+MachineController& FactorySimulation::getCutterCtrl() { return m_ctrlCutter; }
+MachineController& FactorySimulation::getAssemblerCtrl() { return m_ctrlAssembler; }
+MachineController& FactorySimulation::getPainterCtrl() { return m_ctrlPainter; }

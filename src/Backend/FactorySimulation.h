@@ -38,9 +38,9 @@ public:
 
     int getSpeed() const { return m_speed; }
 
-    MachineController& getCutterCtrl()    { return m_ctrlCutter; }
-    MachineController& getAssemblerCtrl() { return m_ctrlAssembler; }
-    MachineController& getPainterCtrl()   { return m_ctrlPainter; }
+    MachineController& getCutterCtrl();
+    MachineController& getAssemblerCtrl();
+    MachineController& getPainterCtrl();
 
 private:
     SimulationState  m_simState = SimulationState::STOPPED;
