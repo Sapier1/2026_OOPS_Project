@@ -12,10 +12,10 @@ protected:
     float m_breakdownProb;
     float m_health = 1.0f; // 0.0~1.0, 고장마다 감소
 
-    bool m_hasItem = false;       // 현재 처리 중인 아이템 보유 여부
-    bool m_outputReady = false;   // 완료된 아이템이 출력 대기 중
+    bool m_hasItem = false; // 현재 처리 중인 아이템 보유 여부
+    bool m_outputReady = false; // 완료된 아이템이 출력 대기 중
 
-    int m_repairTime;
+    int m_repairTime = 5;
     int m_repairProgress = 0;
     
     int m_completedCount = 0;
@@ -30,20 +30,18 @@ public:
     virtual string getMachineName() const = 0;
 
     MachineState getState() const;
-    float getProgress() const;       // 작업 or 수리 진행률 0.0~1.0
-    float getHealth() const;         // 기계 상태 (0.0~1.0)
-    int getProcessTime() const;      // 4 ticks 표시용
+    float getProgress() const; // 작업 or 수리 진행률 0.0~1.0
+    float getHealth() const; // 기계 상태 (0.0~1.0)
+    int getProcessTime() const; // 4 ticks 표시용
     float getBrokenScale() const;
     int getCompletedCount() const;
     int getBreakdownCount() const;
 
-    // IDLE 상태일 때만 아이템을 수락하고 WORKING으로 전환
+    // Call when FactorySimulation changes scenario
+    void setBreakdownProb(float prob);
+
     bool acceptItem();
-
-    // 작업 완료 아이템이 다음 컨베이어로 나갈 준비가 됐는지
     bool hasOutputReady() const;
-
-    // FactorySimulation이 출력 아이템을 수거할 때 호출
     void collectOutput();
 
     void repair();

@@ -7,7 +7,7 @@ Cutter::Cutter() : AbstractMachine(3, 0.02f, 4) {}
 string Cutter::getMachineName() const { return "Sheet Metal Cutter"; }
 
 void Cutter::update(int tick) {
-    // 1. REPAIRING 처리 — 수리 진행
+    // REPAIRING Process
     if (m_state == MachineState::REPAIRING) {
         m_repairProgress++;
         if (m_repairProgress >= m_repairTime) {
@@ -17,16 +17,14 @@ void Cutter::update(int tick) {
         return;
     }
 
-    // 2. 고장 상태면 스킵
     if (m_state == MachineState::BROKEN) return;
 
-    // 3. 처리할 아이템이 없으면 IDLE 유지
     if (!m_hasItem) {
         m_state = MachineState::IDLE;
         return;
     }
 
-    // 4. 랜덤 고장 (작업 중에만 발생)
+    // Random Breakdown (only during WORKING)
     // (float)rand() / RAND_MAX는 0.0~1.0 사이의 랜덤 실수 생성
     if (((float)rand() / RAND_MAX) < m_breakdownProb) {
         m_state = MachineState::BROKEN;
@@ -36,11 +34,11 @@ void Cutter::update(int tick) {
         return;
     }
 
-    // 5. 정상 작업 진행
+    // Normal operation progress
     m_state = MachineState::WORKING;
     m_currentProgress++;
 
-    // 6. 작업 완료
+    // Task completion
     if (m_currentProgress >= m_processTime) {
         m_currentProgress = 0;
         m_hasItem = false;
