@@ -19,8 +19,11 @@ set(SOURCES
     src/MachineController.cpp
     src/UI/MachineCard.cpp
 
-    src/Backend/Cutter.cpp
     src/Backend/AbstractMachine.cpp
+    src/Backend/FactorySimulation.cpp
+    src/Backend/Conveyor.cpp
+    src/Backend/Cutter.cpp
+    src/Backend/Assembler.cpp
     src/Backend/Painter.cpp
     # Add your new source files here. Example:
     # src/GameManager.cpp
