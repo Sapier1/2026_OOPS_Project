@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FactorySnap.h"
+#include "FactoryFloorView.h"
 #include "MachineController.h"
 #include "SimulationCmd.h"
 #include "SimulationControlView.h"
@@ -10,6 +11,7 @@ class UIManager
 {
 private:
     SimulationControlView m_controlView;
+    FactoryFloorView m_floorView;
     StatisticsView m_statsView;
 
 public:

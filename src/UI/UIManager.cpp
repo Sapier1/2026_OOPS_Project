@@ -13,22 +13,24 @@ void UIManager::renderAll(
 {
     // UIManager가 각 창의 위치와 크기를 고정해서 main.cpp가 UI 배치를 몰라도 되게 한다.
     ImGui::SetNextWindowPos(ImVec2(20, 20), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(280, 230), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(1180, 70), ImGuiCond_Always);
     m_controlView.render(snap.tick, outCmd);
 
-    ImGui::SetNextWindowPos(ImVec2(320, 20), ImGuiCond_Always);
+    m_statsView.render(snap);
+
+    ImGui::SetNextWindowPos(ImVec2(20, 220), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
     renderMachineCard(cutterCtrl);
 
-    ImGui::SetNextWindowPos(ImVec2(580, 20), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(280, 220), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
     renderMachineCard(assemblerCtrl);
 
-    ImGui::SetNextWindowPos(ImVec2(840, 20), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(540, 220), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
     renderMachineCard(painterCtrl);
 
-    ImGui::SetNextWindowPos(ImVec2(20, 270), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(280, 300), ImGuiCond_Always);
-    m_statsView.render(snap);
+    ImGui::SetNextWindowPos(ImVec2(20, 460), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(760, 160), ImGuiCond_Always);
+    m_floorView.render(snap);
 }

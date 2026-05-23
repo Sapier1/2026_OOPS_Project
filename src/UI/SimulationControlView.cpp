@@ -9,15 +9,6 @@ void SimulationControlView::render(
 {
     ImGui::Begin("Simulation Control");
 
-    // 현재 Tick
-    ImGui::Text(
-        "Current Tick: %d",
-        currentTick
-    );
-
-    ImGui::Separator();
-
-    // Start
     if (ImGui::Button("Start"))
     {
         outCmd.OnStartClicked = true;
@@ -25,7 +16,6 @@ void SimulationControlView::render(
 
     ImGui::SameLine();
 
-    // Pause
     if (ImGui::Button("Pause"))
     {
         outCmd.OnPauseClicked = true;
@@ -33,35 +23,33 @@ void SimulationControlView::render(
 
     ImGui::SameLine();
 
-    // Reset
     if (ImGui::Button("Reset"))
     {
         outCmd.OnResetClicked = true;
     }
 
-    ImGui::Separator();
+    ImGui::SameLine();
+    ImGui::Spacing();
+    ImGui::SameLine();
 
-    // Speed Slider
-    if (ImGui::SliderInt(
-        "Speed",
-        &m_simSpeed,
-        1,
-        5
-    ))
+    ImGui::SetNextItemWidth(120.0f);
+    if (ImGui::SliderInt("Speed", &m_simSpeed, 1, 5))
     {
         outCmd.speedChanged = true;
         outCmd.newSpeed = m_simSpeed;
     }
 
-    ImGui::Separator();
+    ImGui::SameLine();
+    ImGui::Spacing();
+    ImGui::SameLine();
 
-    // Scenario Dropdown
     const char* scenarios[] =
     {
         "Normal Flow",
         "Random Breakdown"
     };
 
+    ImGui::SetNextItemWidth(170.0f);
     if (ImGui::Combo(
         "Scenario",
         &m_currentScenarioIdx,
@@ -70,9 +58,13 @@ void SimulationControlView::render(
     ))
     {
         outCmd.scenarioChanged = true;
-        outCmd.newScenario =
-            m_currentScenarioIdx;
+        outCmd.newScenario = m_currentScenarioIdx;
     }
+
+    ImGui::SameLine();
+    ImGui::Spacing();
+    ImGui::SameLine();
+    ImGui::Text("Tick: %d", currentTick);
 
     ImGui::End();
 }
