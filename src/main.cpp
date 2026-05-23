@@ -10,7 +10,7 @@
 #include "Backend/FactorySimulation.h"
 #include "SimulationCmd.h"
 #include "UI/MachineCardView.h"
-#include "UI/MachineControlView.h"
+#include "UI/SimulationControlView.h"
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -46,6 +46,8 @@ int main(int argc, char* argv[]) {
     // 변경: FactorySimulation 하나가 전체 파이프라인을 관리한다.
     FactorySimulation factory;
 
+    SimulationControlView ControlView;
+
     // 배속(speed)에 따라 틱 간격 변경
     // speed=1 → 1000ms/틱,  speed=5 → 200ms/틱
     const Uint32 BASE_TICK_MS = 1000;
@@ -69,6 +71,9 @@ int main(int argc, char* argv[]) {
         // 커맨드 수집
         // UI 담당자가 작성한 render 함수들이 이 cmd에 플래그를 기록한다.
         SimulationCmd cmd;
+
+        FactorySnap snap = factory.getSnapshot();
+        ControlView.render(snap.tick, cmd);
 
         // UI 담당자 render 함수 호출 위치
         // renderControlPanel(factory.getSnapshot(), cmd);

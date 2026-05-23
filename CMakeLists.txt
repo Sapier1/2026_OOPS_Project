@@ -18,6 +18,7 @@ set(SOURCES
     
     src/MachineController.cpp
     src/UI/MachineCardView.cpp
+    src/UI/SimulationControlView.cpp
 
     src/Backend/AbstractMachine.cpp
     src/Backend/FactorySimulation.cpp
