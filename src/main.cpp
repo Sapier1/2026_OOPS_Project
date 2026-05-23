@@ -9,8 +9,7 @@
 
 #include "Backend/FactorySimulation.h"
 #include "SimulationCmd.h"
-#include "UI/MachineCardView.h"
-#include "UI/SimulationControlView.h"
+#include "UI/UIManager.h"
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0) {
@@ -46,7 +45,9 @@ int main(int argc, char* argv[]) {
     // 변경: FactorySimulation 하나가 전체 파이프라인을 관리한다.
     FactorySimulation factory;
 
-    SimulationControlView ControlView;
+    // 기존에는 main.cpp가 SimulationControlView와 MachineCardView들을 직접 호출했다.
+    // 변경 후에는 UIManager가 전체 UI 레이아웃과 하위 View 호출 순서를 관리한다.
+    UIManager uiManager;
 
     // 배속(speed)에 따라 틱 간격 변경
     // speed=1 → 1000ms/틱,  speed=5 → 200ms/틱
@@ -73,13 +74,23 @@ int main(int argc, char* argv[]) {
         SimulationCmd cmd;
 
         FactorySnap snap = factory.getSnapshot();
-        ControlView.render(snap.tick, cmd);
 
-        // UI 담당자 render 함수 호출 위치
-        // renderControlPanel(factory.getSnapshot(), cmd);
-        renderMachineCard(factory.getCutterCtrl());
-        renderMachineCard(factory.getAssemblerCtrl());
-        renderMachineCard(factory.getPainterCtrl());
+        // 기존 호출 방식:
+        //   ControlView.render(snap.tick, cmd);
+        //   renderMachineCard(factory.getCutterCtrl());
+        //   renderMachineCard(factory.getAssemblerCtrl());
+        //   renderMachineCard(factory.getPainterCtrl());
+        //
+        // 변경 후 호출 방식:
+        //   main.cpp는 UIManager를 한 번만 호출하고,
+        //   UIManager 내부에서 각 View와 창 위치를 일괄 관리한다.
+        uiManager.renderAll(
+            snap,
+            factory.getCutterCtrl(),
+            factory.getAssemblerCtrl(),
+            factory.getPainterCtrl(),
+            cmd
+        );
 
         // 기존: cutter.update(tick++) 등 수동 호출
         // 변경: applyCmd 한 번으로 Start/Pause/Reset/시나리오 모두 처리
