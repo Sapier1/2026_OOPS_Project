@@ -27,4 +27,8 @@ void UIManager::renderAll(
     ImGui::SetNextWindowPos(ImVec2(840, 20), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
     renderMachineCard(painterCtrl);
+
+    ImGui::SetNextWindowPos(ImVec2(20, 270), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(280, 300), ImGuiCond_Always);
+    m_statsView.render(snap);
 }

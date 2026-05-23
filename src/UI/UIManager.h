@@ -4,11 +4,13 @@
 #include "MachineController.h"
 #include "SimulationCmd.h"
 #include "SimulationControlView.h"
+#include "StatisticsView.h"
 
 class UIManager
 {
 private:
     SimulationControlView m_controlView;
+    StatisticsView m_statsView;
 
 public:
     // main.cpp에서 UIManager를 한 번만 호출하면,
