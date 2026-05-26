@@ -1,6 +1,7 @@
 #include "MachineController.h"
 
-MachineController::MachineController(AbstractMachine* machine) : m_machine(machine) {}
+MachineController::MachineController(AbstractMachine* machine, const Conveyor* inputConveyor)
+: m_machine(machine), m_inputConveyor(inputConveyor) {}
 
 void MachineController::onRepairClicked() {
     if (m_machine) m_machine->repair();
@@ -16,8 +17,8 @@ MachineSnap MachineController::getSnapshot() const {
         m_machine->getMachineName(),
         (int)m_machine->getState(),
         m_machine->getProgress(),
-        0,                           // queueSize (현재 미구현)
-        5,                           // queueCapacity (기본값)
+        m_inputConveyor ? m_inputConveyor->getSize() : 0, // queueSize
+        5, // queueCapacity (기본값)
         m_machine->getCompletedCount(),
         m_machine->getHealth(),
         m_machine->getProcessTime()

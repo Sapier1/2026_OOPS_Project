@@ -5,9 +5,9 @@ static constexpr float PROB_BREAKDOWN = 0.06f;  // Random Breakdown
 
 FactorySimulation::FactorySimulation()
     : m_c1(5), m_c2(5), m_c3(1),
-    m_ctrlCutter(&m_cutter),
-    m_ctrlAssembler(&m_assembler),
-    m_ctrlPainter(&m_painter)
+    m_ctrlCutter(&m_cutter, nullptr),
+    m_ctrlAssembler(&m_assembler, &m_c1),
+    m_ctrlPainter(&m_painter, &m_c2)
 {
     applyScenario(m_scenario);  // 기본값으로 초기화
 }

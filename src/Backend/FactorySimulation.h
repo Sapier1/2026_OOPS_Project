@@ -52,13 +52,13 @@ private:
     Assembler m_assembler;
     Painter   m_painter;
 
-    MachineController m_ctrlCutter;
-    MachineController m_ctrlAssembler;
-    MachineController m_ctrlPainter;
-
     Conveyor  m_c1;   // Cutter    → Assembler
     Conveyor  m_c2;   // Assembler → Painter
     Conveyor  m_c3;   // Painter   → Output (capacity=1, 즉시 수거)
+
+    MachineController m_ctrlCutter;
+    MachineController m_ctrlAssembler;
+    MachineController m_ctrlPainter;
 
     // 글로벌 통계
     int m_finishedGoods   = 0;
