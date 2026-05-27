@@ -42,6 +42,7 @@ public:
 
     bool acceptItem();
     bool hasOutputReady() const;
+    bool hasItem() const;
     void collectOutput();
 
     void repair();

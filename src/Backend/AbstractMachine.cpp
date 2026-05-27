@@ -36,6 +36,10 @@ bool AbstractMachine::hasOutputReady() const {
     return m_outputReady;
 }
 
+bool AbstractMachine::hasItem() const {
+    return m_hasItem;
+}
+
 void AbstractMachine::collectOutput() {
     m_outputReady = false;
 }

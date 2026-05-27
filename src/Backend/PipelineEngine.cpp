@@ -9,13 +9,30 @@ PipelineEngine::PipelineEngine()
     applyScenario(SimulationScenario::NormalFlow);
 }
 
-//  순서: 출력 수거 → 아이템 전달 → 자동 수리 → update()
+//  순서: 아이템 전달 → 출력 수거/전달 → 자동 수리 → update()
 //  결과(완료/손실/고장/로그)를 PipelineStepResult로 반환
 PipelineStepResult PipelineEngine::step(int tick) {
     PipelineStepResult result;
 
-    // 1. 출력 수거 & 다음 단계로 전달
+    // 1. 아이템 전달 (컨베이어 → 기계)
+    // C2 → Painter
+    if (!m_c2.isEmpty() && m_painter.getState() == MachineState::IDLE) {
+        m_c2.pop();
+        m_painter.acceptItem();
+    }
 
+    // C1 → Assembler
+    if (!m_c1.isEmpty() && m_assembler.getState() == MachineState::IDLE) {
+        m_c1.pop();
+        m_assembler.acceptItem();
+    }
+
+    // Raw material → Cutter
+    if (m_cutter.getState() == MachineState::IDLE) {
+        m_cutter.acceptItem();
+    }
+
+    // 2. 출력 수거 & 다음 단계로 전달
     // Painter 완료 → 완성품
     if (m_painter.hasOutputReady()) {
         m_painter.collectOutput();
@@ -41,25 +58,7 @@ PipelineStepResult PipelineEngine::step(int tick) {
         }
     }
 
-    // 2. 아이템 전달 (컨베이어 → 기계)
-
-    // C2 → Painter
-    if (!m_c2.isEmpty() && m_painter.getState() == MachineState::IDLE) {
-        m_c2.pop();
-        m_painter.acceptItem();
-    }
-
-    // C1 → Assembler
-    if (!m_c1.isEmpty() && m_assembler.getState() == MachineState::IDLE) {
-        m_c1.pop();
-        m_assembler.acceptItem();
-    }
-
-    // Raw material → Cutter
-    if (m_cutter.getState() == MachineState::IDLE) {
-        m_cutter.acceptItem();
-    }
-
+    // 3. 자동 수리
     autoRepair(tick, result);
 
     // 4. 각 기계 update — 고장 감지를 위해 업데이트 전후 카운트 비교
