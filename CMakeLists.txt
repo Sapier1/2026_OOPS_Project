@@ -29,6 +29,9 @@ set(SOURCES
     src/Backend/Cutter.cpp
     src/Backend/Assembler.cpp
     src/Backend/Painter.cpp
+    src/Backend/EventLogger.cpp
+    src/Backend/FactoryStatistics.cpp
+    src/Backend/PipelineEngine.cpp
     # Add your new source files here. Example:
     # src/GameManager.cpp
     # src/Player.cpp
