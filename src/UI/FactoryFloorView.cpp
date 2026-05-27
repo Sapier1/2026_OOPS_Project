@@ -25,9 +25,6 @@ void FactoryFloorView::render(const FactorySnap& snap)
     ImGui::Spacing();
 
     renderConveyorLoad("C2 Assembler -> Painter", snap.c2);
-    ImGui::Spacing();
-
-    renderConveyorLoad("C3 Painter -> Output", snap.c3);
 
     ImGui::End();
 }
