@@ -7,6 +7,7 @@
 #include "SimulationControlView.h"
 #include "StatisticsView.h"
 #include "InspectorView.h"
+#include "EventLogView.h"
 
 class UIManager
 {
@@ -16,6 +17,7 @@ private:
     StatisticsView m_statsView;
     InspectorView m_inspectorView;
     MachineController* m_selectedMachine = nullptr;
+    EventLogView m_logView;
 
 
 public:

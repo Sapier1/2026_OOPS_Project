@@ -58,6 +58,10 @@ void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
                 "Simulation paused (tick " + to_string(m_tick) + ")");
         }
     }
+    //EventLog의 clear를 눌렀을 경우
+    if (cmd.OnClearLogClicked) {
+        m_logger.clear();
+    }
 }
 
 //  PipelineEngine::step()을 호출하고,

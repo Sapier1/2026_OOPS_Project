@@ -38,4 +38,8 @@ void UIManager::renderAll(
     ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Always);
     m_inspectorView.render(m_selectedMachine);
 
+    ImGui::SetNextWindowPos(ImVec2(20, 630), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(1080, 150), ImGuiCond_Always); 
+    m_logView.render(snap.recentLogs, outCmd);
+
 }

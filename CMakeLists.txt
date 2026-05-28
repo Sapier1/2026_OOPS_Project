@@ -23,6 +23,7 @@ set(SOURCES
     src/UI/StatisticsView.cpp
     src/UI/UIManager.cpp
     src/UI/InspectorView.cpp
+    src/UI/EventLogView.cpp
 
     src/Backend/AbstractMachine.cpp
     src/Backend/FactorySimulation.cpp

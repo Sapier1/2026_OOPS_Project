@@ -13,6 +13,7 @@ struct SimulationCmd {
     bool OnStartClicked = false;
     bool OnPauseClicked = false;  
     bool OnResetClicked = false;
+    bool OnClearLogClicked = false;
 
     bool scenarioChanged = false;
     int  newScenario = 0; // SimulationScenario 캐스팅 값

@@ -1,0 +1,27 @@
+# ninja log v7
+4	419	8016770239859515	build.ninja	d2c64b3d9c75030d
+4	419	8016770239830496	F:/2026_OOPS_Project/cmake_install.cmake	d2c64b3d9c75030d
+119	1369	8016562168972318	CMakeFiles/imgui_app.dir/src/UI/UIManager.cpp.obj	af0f247159aab1f0
+88	1390	8016562168662659	CMakeFiles/imgui_app.dir/src/UI/MachineCardView.cpp.obj	bb0a8fe6dcc43184
+132	1400	8016562169023748	CMakeFiles/imgui_app.dir/src/Backend/AbstractMachine.cpp.obj	ba4a284307d40e74
+101	1407	8016562168799583	CMakeFiles/imgui_app.dir/src/UI/SimulationControlView.cpp.obj	3ae7b1f8c989cfee
+112	1418	8016562168861426	CMakeFiles/imgui_app.dir/src/UI/StatisticsView.cpp.obj	b8ce41034996724e
+65	1429	8016562168553769	CMakeFiles/imgui_app.dir/src/UI/FactoryFloorView.cpp.obj	2b8856533550fcf7
+144	1439	8016562169201663	CMakeFiles/imgui_app.dir/src/Backend/FactorySimulation.cpp.obj	b8ac2b020be42c3d
+49	1452	8016562168308955	CMakeFiles/imgui_app.dir/src/MachineController.cpp.obj	2945c7cd96a2efc8
+126	1463	8016562169023748	CMakeFiles/imgui_app.dir/src/UI/InspectorView.cpp.obj	116b4876253b5dec
+1429	1831	8016562182058055	CMakeFiles/imgui_app.dir/src/Backend/FactoryStatistics.cpp.obj	3a1c779169649214
+1409	2298	8016562181874916	CMakeFiles/imgui_app.dir/src/Backend/Painter.cpp.obj	925785b6343c197a
+1418	2304	8016562181959376	CMakeFiles/imgui_app.dir/src/Backend/EventLogger.cpp.obj	bfac17229e5cdcd3
+1381	2310	8016562181583152	CMakeFiles/imgui_app.dir/src/Backend/Conveyor.cpp.obj	d0a94ea1d11c8a2e
+1391	2315	8016562181685528	CMakeFiles/imgui_app.dir/src/Backend/Cutter.cpp.obj	52839a98a2b59060
+1400	2322	8016562181782913	CMakeFiles/imgui_app.dir/src/Backend/Assembler.cpp.obj	aeec502681f5b5fd
+1439	2424	8016562182166095	CMakeFiles/imgui_app.dir/src/Backend/PipelineEngine.cpp.obj	cdc7096360eb3d8
+40	2842	8016562168161884	CMakeFiles/imgui_app.dir/src/main.cpp.obj	a59364995d800ca9
+2310	3471	8016562190861061	CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_opengl3.cpp.obj	e54e8f3e44f5735
+2304	3594	8016562190815231	CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_sdl2.cpp.obj	4c40f11b45f82373
+1840	3639	8016562186269858	CMakeFiles/imgui_app.dir/libs/imgui/imgui_tables.cpp.obj	b535e5d73f30074f
+1464	3791	8016562182419121	CMakeFiles/imgui_app.dir/libs/imgui/imgui_draw.cpp.obj	8fa0f8030f06b4fe
+2298	4295	8016562190745463	CMakeFiles/imgui_app.dir/libs/imgui/imgui_widgets.cpp.obj	de70d926214d8244
+1452	4578	8016562182294641	CMakeFiles/imgui_app.dir/libs/imgui/imgui.cpp.obj	c3973a050fa434d5
+4578	4908	8016562213556722	imgui_app.exe	2b8625065b62964f
