@@ -17,20 +17,25 @@ void UIManager::renderAll(
     m_controlView.render(snap.tick, outCmd);
 
     m_statsView.render(snap);
-
+    
     ImGui::SetNextWindowPos(ImVec2(20, 220), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
-    renderMachineCard(cutterCtrl);
+    renderMachineCard(cutterCtrl, m_selectedMachine);
 
     ImGui::SetNextWindowPos(ImVec2(280, 220), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
-    renderMachineCard(assemblerCtrl);
+    renderMachineCard(assemblerCtrl, m_selectedMachine);
 
     ImGui::SetNextWindowPos(ImVec2(540, 220), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
-    renderMachineCard(painterCtrl);
+    renderMachineCard(painterCtrl, m_selectedMachine);
 
     ImGui::SetNextWindowPos(ImVec2(20, 460), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(760, 160), ImGuiCond_Always);
     m_floorView.render(snap);
+
+    ImGui::SetNextWindowPos(ImVec2(800, 220), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Always);
+    m_inspectorView.render(m_selectedMachine);
+
 }

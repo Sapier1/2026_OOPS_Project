@@ -6,6 +6,7 @@
 #include "SimulationCmd.h"
 #include "SimulationControlView.h"
 #include "StatisticsView.h"
+#include "InspectorView.h"
 
 class UIManager
 {
@@ -13,6 +14,9 @@ private:
     SimulationControlView m_controlView;
     FactoryFloorView m_floorView;
     StatisticsView m_statsView;
+    InspectorView m_inspectorView;
+    MachineController* m_selectedMachine = nullptr;
+
 
 public:
     // main.cpp에서 UIManager를 한 번만 호출하면,

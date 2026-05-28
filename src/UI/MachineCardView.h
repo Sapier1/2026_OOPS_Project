@@ -3,5 +3,6 @@
 #include "MachineController.h"
 
 void renderMachineCard(
-    MachineController& controller
+    MachineController& controller, 
+    MachineController*& currentSelected
 );

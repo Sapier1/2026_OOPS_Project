@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
             factory.getAssemblerCtrl(),
             factory.getPainterCtrl(),
             cmd
-        );
+        );  
 
         // 기존: cutter.update(tick++) 등 수동 호출
         // 변경: applyCmd 한 번으로 Start/Pause/Reset/시나리오 모두 처리

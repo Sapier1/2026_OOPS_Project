@@ -35,8 +35,8 @@ void StatisticsView::render(const FactorySnap& snap)
     );
 
     renderStatWindow(
-        "WIP Count",
-        "WIP Count",
+        "In Progress",
+        "In Progress",
         snap.wipCount,
         ImVec2(320, 100)
     );

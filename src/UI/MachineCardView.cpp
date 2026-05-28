@@ -3,7 +3,8 @@
 #include "imgui.h"
 
 void renderMachineCard(
-    MachineController& controller
+    MachineController& controller,
+    MachineController*& currentSelected
 )
 {
      MachineSnap snap =controller.getSnapshot();
@@ -15,6 +16,19 @@ void renderMachineCard(
     const char* text;
 
     ImGui::Begin(snap.name.c_str()); //machine 이름
+
+    // 기계를 선택하는 동작
+    bool isSelected = (currentSelected == &controller);
+    if (isSelected) {
+        ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "[ Selected ]");
+    } else {
+        if (ImGui::Button("Select Machine")) {
+            currentSelected = &controller;
+        }
+    }
+    ImGui::Separator();
+
+    //상태 표시
     switch(snap.state)
         {
             case 0:
@@ -69,15 +83,6 @@ void renderMachineCard(
         ImGui::Spacing();
         ImGui::Text("Queue: %d/%d", snap.queueSize, snap.queueCapacity);
         
-        //고장, 수리 버튼
-        if(ImGui::Button("Break"))
-        {
-            controller.onForceBreakClicked();
-        }
-        ImGui::SameLine();
-        if(ImGui::Button("Repair"))
-        {
-            controller.onRepairClicked();
-        }
+        //고장, 수리 버튼 삭제
         ImGui::End();
 }
