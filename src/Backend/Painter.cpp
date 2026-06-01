@@ -1,6 +1,8 @@
 #include "Painter.h"
 #include <cstdlib>
 
+REGISTER_MACHINE(Painter)
+
 Painter::Painter() : AbstractMachine(4, 0.02f, 5) {}
 // 4틱 작업, 2% 고장 확률, 5틱 수리 시간
 

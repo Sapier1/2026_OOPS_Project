@@ -1,5 +1,6 @@
 #pragma once
 #include "SimulationObject.h"
+#include "MachineRegistry.h"
 
 enum class MachineState { IDLE, WORKING, BROKEN, REPAIRING };
 

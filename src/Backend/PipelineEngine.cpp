@@ -1,158 +1,123 @@
 #include "PipelineEngine.h"
 
-PipelineEngine::PipelineEngine()
-    : m_c1(5), m_c2(5),
-      m_ctrlCutter(&m_cutter, nullptr), // Cutter는 원재료 투입구이므로 inputConveyor 없음
-      m_ctrlAssembler(&m_assembler, &m_c1),
-      m_ctrlPainter(&m_painter, &m_c2)
-{
-    applyScenario(SimulationScenario::NormalFlow);
+void PipelineEngine::registerNode(AbstractMachine* m, Conveyor* in, Conveyor* out) {
+    m_nodes.push_back({ m, in, out });
+    m_controllers.emplace_back(m);
+
+    auto addOnce = [&](Conveyor* c) {
+        if (c && find(m_conveyors.begin(), m_conveyors.end(), c) == m_conveyors.end())
+            m_conveyors.push_back(c);
+    };
+    addOnce(in);
+    addOnce(out);
 }
 
-//  순서: 아이템 전달 → 출력 수거/전달 → 자동 수리 → update()
-//  결과(완료/손실/고장/로그)를 PipelineStepResult로 반환
+size_t PipelineEngine::getMachineCount() const { return m_controllers.size(); }
+MachineController& PipelineEngine::getMachineCtrl(size_t i) { return m_controllers.at(i); }
+
 PipelineStepResult PipelineEngine::step(int tick) {
     PipelineStepResult result;
 
-    // 1. 아이템 전달 (컨베이어 → 기계)
-    // C2 → Painter
-    if (!m_c2.isEmpty() && m_painter.getState() == MachineState::IDLE) {
-        m_c2.pop();
-        m_painter.acceptItem();
-    }
-
-    // C1 → Assembler
-    if (!m_c1.isEmpty() && m_assembler.getState() == MachineState::IDLE) {
-        m_c1.pop();
-        m_assembler.acceptItem();
-    }
-
-    // Raw material → Cutter
-    if (m_cutter.getState() == MachineState::IDLE) {
-        m_cutter.acceptItem();
-    }
-
-    // 2. 출력 수거 & 다음 단계로 전달
-    // Painter 완료 → 완성품
-    if (m_painter.hasOutputReady()) {
-        m_painter.collectOutput();
-        ++result.newFinished;
-        result.logs.push_back("[Tick " + to_string(tick) + "] Finished good #(cumulative)");
-    }
-
-    // Assembler 완료 → C2 push
-    if (m_assembler.hasOutputReady()) {
-        m_assembler.collectOutput();
-        if (!m_c2.push()) {
-            ++result.newLost;
-            result.logs.push_back("[Tick " + to_string(tick) + "] C2 overflow — product lost");
+    // 1. 컨베이어 → 기계 (역순: 하류부터 당겨야 병목 없음)
+    for (int i = (int)m_nodes.size() - 1; i >= 0; --i) {
+        auto& node = m_nodes[i];
+        if (node.machine->getState() != MachineState::IDLE) continue;
+        if (node.inputConv == nullptr) {
+            node.machine->acceptItem();
+        } else if (!node.inputConv->isEmpty()) {
+            node.inputConv->pop();
+            node.machine->acceptItem();
         }
     }
 
-    // Cutter 완료 → C1 push
-    if (m_cutter.hasOutputReady()) {
-        m_cutter.collectOutput();
-        if (!m_c1.push()) {
+    // 2. 기계 출력 → 다음 컨베이어 or 완성품
+    for (auto& node : m_nodes) {
+        if (!node.machine->hasOutputReady()) continue;
+        node.machine->collectOutput();
+
+        if (node.outputConv == nullptr) {
+            ++result.newFinished;
+            result.logs.push_back(
+                "[Tick " + to_string(tick) + "] Finished good #(cumulative)");
+        } else if (!node.outputConv->push()) {
             ++result.newLost;
-            result.logs.push_back("[Tick " + to_string(tick) + "] C1 overflow — product lost");
+            result.logs.push_back(
+                "[Tick " + to_string(tick) + "] " +
+                node.machine->getMachineName() + " overflow — product lost");
         }
     }
 
     // 3. 자동 수리
     autoRepair(tick, result);
 
-    // 4. 각 기계 update — 고장 감지를 위해 업데이트 전후 카운트 비교
-    int prevCutterBreak = m_cutter.getBreakdownCount();
-    int prevAssemblerBreak = m_assembler.getBreakdownCount();
-    int prevPainterBreak = m_painter.getBreakdownCount();
+    // 4. update + 고장 감지
+    vector<int> prevBreak;
+    for (auto& node : m_nodes)
+        prevBreak.push_back(node.machine->getBreakdownCount());
 
-    m_cutter.update(tick);
-    m_assembler.update(tick);
-    m_painter.update(tick);
+    for (auto& node : m_nodes)
+        node.machine->update(tick);
 
-    // 5. 새 고장 이벤트 감지 및 결과 기록
-    if (m_cutter.getBreakdownCount() > prevCutterBreak) {
-        ++result.newBreakdowns;
-        result.logs.push_back("[Tick " + to_string(tick) + "] Cutter BROKEN");
-    }
-    if (m_assembler.getBreakdownCount() > prevAssemblerBreak) {
-        ++result.newBreakdowns;
-        result.logs.push_back("[Tick " + to_string(tick) + "] Assembler BROKEN");
-    }
-    if (m_painter.getBreakdownCount() > prevPainterBreak) {
-        ++result.newBreakdowns;
-        result.logs.push_back("[Tick " + to_string(tick) + "] Painter BROKEN");
+    for (size_t i = 0; i < m_nodes.size(); ++i) {
+        if (m_nodes[i].machine->getBreakdownCount() > prevBreak[i]) {
+            ++result.newBreakdowns;
+            result.logs.push_back(
+                "[Tick " + to_string(tick) + "] " +
+                m_nodes[i].machine->getMachineName() + " BROKEN");
+        }
     }
 
     return result;
 }
 
-
 void PipelineEngine::autoRepair(int tick, PipelineStepResult& result) {
-    auto tryAutoRepair = [&](AbstractMachine& m, const char* name) {
-        if (m.getState() == MachineState::BROKEN) {
-            m.repair();
-            result.logs.push_back("[Tick " + to_string(tick) +"] Technician dispatched → " + string(name));
+    for (auto& node : m_nodes) {
+        if (node.machine->getState() == MachineState::BROKEN) {
+            node.machine->repair();
+            result.logs.push_back(
+                "[Tick " + to_string(tick) +
+                "] Technician dispatched → " + node.machine->getMachineName());
         }
-    };
-
-    tryAutoRepair(m_cutter, "Cutter");
-    tryAutoRepair(m_assembler, "Assembler");
-    tryAutoRepair(m_painter, "Painter");
+    }
 }
 
 void PipelineEngine::applyScenario(SimulationScenario s) {
     float prob = (s == SimulationScenario::RandomBreakdown)
-                     ? PROB_BREAKDOWN
-                     : PROB_NORMAL;
-
-    m_cutter.setBreakdownProb(prob);
-    m_assembler.setBreakdownProb(prob);
-    m_painter.setBreakdownProb(prob);
+                     ? PROB_BREAKDOWN : PROB_NORMAL;
+    for (auto& node : m_nodes)
+        node.machine->setBreakdownProb(prob);
 }
 
+vector<MachineSnap> PipelineEngine::getMachineSnaps() const {
+    vector<MachineSnap> v;
+    for (const auto& node : m_nodes) v.push_back(makeMachineSnap(*node.machine));
+    return v;
+}
 
-PipelineSnap PipelineEngine::getSnap() const {
-    PipelineSnap snap;
+vector<ConveyorSnap> PipelineEngine::getConveyorSnaps() const {
+    vector<ConveyorSnap> v;
+    for (const auto* c : m_conveyors) v.push_back(makeConveyorSnap(*c));
+    return v;
+}
 
-    snap.cutter = makeMachineSnap(m_cutter);
-    snap.assembler = makeMachineSnap(m_assembler);
-    snap.painter = makeMachineSnap(m_painter);
-
-    snap.c1 = { m_c1.getSize(), m_c1.getCapacity() };
-    snap.c2 = { m_c2.getSize(), m_c2.getCapacity() };
-
-    // WIP = 컨베이어 내 아이템 수 + WORKING 상태 기계 수
-    int machineWip = 0;
-    if (m_cutter.getState() == MachineState::WORKING) ++machineWip;
-    if (m_assembler.getState() == MachineState::WORKING) ++machineWip;
-    if (m_painter.getState() == MachineState::WORKING) ++machineWip;
-    snap.wipCount = machineWip + m_c1.getSize() + m_c2.getSize();
-
-    return snap;
+int PipelineEngine::getWipCount() const {
+    int wip = 0;
+    for (const auto& node : m_nodes)
+        if (node.machine->getState() == MachineState::WORKING) ++wip;
+    for (const auto* c : m_conveyors) wip += c->getSize();
+    return wip;
 }
 
 void PipelineEngine::reset() {
-    m_cutter.reset();
-    m_assembler.reset();
-    m_painter.reset();
-    m_c1.reset();
-    m_c2.reset();
+    for (auto& node : m_nodes) node.machine->reset();
+    for (auto* c : m_conveyors) c->reset();
 }
 
-MachineController& PipelineEngine::getCutterCtrl()    { return m_ctrlCutter; }
-MachineController& PipelineEngine::getAssemblerCtrl() { return m_ctrlAssembler; }
-MachineController& PipelineEngine::getPainterCtrl()   { return m_ctrlPainter; }
-
 MachineSnap PipelineEngine::makeMachineSnap(const AbstractMachine& m) const {
-    MachineSnap s;
-    s.name = m.getMachineName();
-    s.state = static_cast<int>(m.getState());
-    s.progress = m.getProgress();
-    s.health = m.getHealth();
-    s.completedCount = m.getCompletedCount();
-    s.processTime = m.getProcessTime();
-    s.queueSize = 0;
-    s.queueCapacity = 5;
-    return s;
+    return { m.getMachineName(), (int)m.getState(), m.getProgress(),
+             0, 5, m.getCompletedCount(), m.getHealth(), m.getProcessTime() };
+}
+
+ConveyorSnap PipelineEngine::makeConveyorSnap(const Conveyor& c) const {
+    return { c.getSize(), c.getCapacity() };
 }

@@ -1,6 +1,8 @@
 #include "Assembler.h"
 #include <cstdlib>
 
+REGISTER_MACHINE(Assembler)
+
 Assembler::Assembler() : AbstractMachine(5, 0.02f, 5) {}
 
 string Assembler::getMachineName() const { return "Assembler-01"; }

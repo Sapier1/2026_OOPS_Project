@@ -1,6 +1,8 @@
 #include "Cutter.h"
 #include <cstdlib>
 
+REGISTER_MACHINE(Cutter)
+
 Cutter::Cutter() : AbstractMachine(3, 0.2f, 4) {}
 // 3틱 작업, 2% 고장 확률, 4틱 수리 시간
 
@@ -42,8 +44,8 @@ void Cutter::update(int tick) {
     if (m_currentProgress >= m_processTime) {
         m_currentProgress = 0;
         m_hasItem = false;
-        m_outputReady = true;   // [추가] 다음 컨베이어 전달 신호
-        m_completedCount++;     // [추가] 완료 카운트 증가
+        m_outputReady = true;
+        m_completedCount++;
         m_state = MachineState::IDLE;
     }
 }
