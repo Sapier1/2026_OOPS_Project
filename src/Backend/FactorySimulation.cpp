@@ -33,4 +33,43 @@ FactorySnap FactorySimulation::getSnapshot() const {
     return snap;
 }
 
-// applyCmd, tick — 기존 코드 그대로 유지
+void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
+    if (cmd.OnStartClicked) {
+        m_simState = SimulationState::RUNNING;
+    }
+    if (cmd.OnPauseClicked) {
+        m_simState = SimulationState::PAUSED;
+    }
+    if (cmd.OnResetClicked) {
+        m_simState = SimulationState::STOPPED;
+        m_tick = 0;
+        m_pipeline.reset();
+        m_stats.reset();
+        m_logger.clear();
+    }
+    if (cmd.OnClearLogClicked) {
+        m_logger.clear();
+    }
+    if (cmd.scenarioChanged) {
+        m_scenario = static_cast<SimulationScenario>(cmd.newScenario);
+        m_pipeline.applyScenario(m_scenario);
+    }
+    if (cmd.speedChanged) {
+        m_speed = cmd.newSpeed;
+    }
+}
+
+void FactorySimulation::tick() {
+    if (m_simState == SimulationState::RUNNING) {
+        m_tick++;
+        PipelineStepResult res = m_pipeline.step(m_tick);
+        
+        for (int i = 0; i < res.newFinished; ++i) m_stats.recordFinished();
+        for (int i = 0; i < res.newLost; ++i) m_stats.recordLost();
+        for (int i = 0; i < res.newBreakdowns; ++i) m_stats.recordBreakdown();
+        
+        for (const string& msg : res.logs) {
+            m_logger.log(m_tick, msg);
+        }
+    }
+}

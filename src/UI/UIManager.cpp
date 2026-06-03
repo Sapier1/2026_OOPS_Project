@@ -1,13 +1,10 @@
 #include "UI/UIManager.h"
 
 #include "imgui.h"
-#include "UI/MachineCardView.h"
 
 void UIManager::renderAll(
     const FactorySnap& snap,
-    MachineController& cutterCtrl,
-    MachineController& assemblerCtrl,
-    MachineController& painterCtrl,
+    FactorySimulation& factory,
     SimulationCmd& outCmd
 )
 {
@@ -19,23 +16,11 @@ void UIManager::renderAll(
     m_statsView.render(snap);
     
     ImGui::SetNextWindowPos(ImVec2(20, 220), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
-    renderMachineCard(cutterCtrl, m_selectedMachine);
+    ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_Always);
+    m_floorView.render(snap, factory, m_selectedMachine);
 
-    ImGui::SetNextWindowPos(ImVec2(280, 220), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
-    renderMachineCard(assemblerCtrl, m_selectedMachine);
-
-    ImGui::SetNextWindowPos(ImVec2(540, 220), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(240, 210), ImGuiCond_Always);
-    renderMachineCard(painterCtrl, m_selectedMachine);
-
-    ImGui::SetNextWindowPos(ImVec2(20, 460), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(760, 160), ImGuiCond_Always);
-    m_floorView.render(snap);
-
-    ImGui::SetNextWindowPos(ImVec2(800, 220), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(300, 400), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(440, 220), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(340, 400), ImGuiCond_Always);
     m_inspectorView.render(m_selectedMachine);
 
     ImGui::SetNextWindowPos(ImVec2(20, 630), ImGuiCond_Always);

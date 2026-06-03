@@ -2,7 +2,8 @@
 #include <vector>
 #include <functional>
 #include <memory>
-#include "AbstractMachine.h"
+
+class AbstractMachine;
 using namespace std;
 
 struct MachineEntry {
@@ -29,4 +30,4 @@ private:
             } \
         ); \
         return true; \
-    }();
+    }();

@@ -68,14 +68,6 @@ build CMakeFiles/imgui_app.dir/src/UI/FactoryFloorView.cpp.obj: CXX_COMPILER__im
   OBJECT_FILE_DIR = CMakeFiles\imgui_app.dir\src\UI
   TARGET_SUPPORT_DIR = CMakeFiles\imgui_app.dir
 
-build CMakeFiles/imgui_app.dir/src/UI/MachineCardView.cpp.obj: CXX_COMPILER__imgui_app_unscanned_ F$:/2026_OOPS_Project/src/UI/MachineCardView.cpp || cmake_object_order_depends_target_imgui_app
-  DEP_FILE = CMakeFiles\imgui_app.dir\src\UI\MachineCardView.cpp.obj.d
-  FLAGS = -std=gnu++17
-  INCLUDES = -IF:/2026_OOPS_Project/src -IF:/2026_OOPS_Project/libs/imgui -IF:/2026_OOPS_Project/libs/imgui/backends -isystem C:/msys64/ucrt64/include/SDL2
-  OBJECT_DIR = CMakeFiles\imgui_app.dir
-  OBJECT_FILE_DIR = CMakeFiles\imgui_app.dir\src\UI
-  TARGET_SUPPORT_DIR = CMakeFiles\imgui_app.dir
-
 build CMakeFiles/imgui_app.dir/src/UI/SimulationControlView.cpp.obj: CXX_COMPILER__imgui_app_unscanned_ F$:/2026_OOPS_Project/src/UI/SimulationControlView.cpp || cmake_object_order_depends_target_imgui_app
   DEP_FILE = CMakeFiles\imgui_app.dir\src\UI\SimulationControlView.cpp.obj.d
   FLAGS = -std=gnu++17
@@ -188,6 +180,22 @@ build CMakeFiles/imgui_app.dir/src/Backend/PipelineEngine.cpp.obj: CXX_COMPILER_
   OBJECT_FILE_DIR = CMakeFiles\imgui_app.dir\src\Backend
   TARGET_SUPPORT_DIR = CMakeFiles\imgui_app.dir
 
+build CMakeFiles/imgui_app.dir/src/Backend/PipelineBuilder.cpp.obj: CXX_COMPILER__imgui_app_unscanned_ F$:/2026_OOPS_Project/src/Backend/PipelineBuilder.cpp || cmake_object_order_depends_target_imgui_app
+  DEP_FILE = CMakeFiles\imgui_app.dir\src\Backend\PipelineBuilder.cpp.obj.d
+  FLAGS = -std=gnu++17
+  INCLUDES = -IF:/2026_OOPS_Project/src -IF:/2026_OOPS_Project/libs/imgui -IF:/2026_OOPS_Project/libs/imgui/backends -isystem C:/msys64/ucrt64/include/SDL2
+  OBJECT_DIR = CMakeFiles\imgui_app.dir
+  OBJECT_FILE_DIR = CMakeFiles\imgui_app.dir\src\Backend
+  TARGET_SUPPORT_DIR = CMakeFiles\imgui_app.dir
+
+build CMakeFiles/imgui_app.dir/src/Backend/MachineRegistry.cpp.obj: CXX_COMPILER__imgui_app_unscanned_ F$:/2026_OOPS_Project/src/Backend/MachineRegistry.cpp || cmake_object_order_depends_target_imgui_app
+  DEP_FILE = CMakeFiles\imgui_app.dir\src\Backend\MachineRegistry.cpp.obj.d
+  FLAGS = -std=gnu++17
+  INCLUDES = -IF:/2026_OOPS_Project/src -IF:/2026_OOPS_Project/libs/imgui -IF:/2026_OOPS_Project/libs/imgui/backends -isystem C:/msys64/ucrt64/include/SDL2
+  OBJECT_DIR = CMakeFiles\imgui_app.dir
+  OBJECT_FILE_DIR = CMakeFiles\imgui_app.dir\src\Backend
+  TARGET_SUPPORT_DIR = CMakeFiles\imgui_app.dir
+
 build CMakeFiles/imgui_app.dir/libs/imgui/imgui.cpp.obj: CXX_COMPILER__imgui_app_unscanned_ F$:/2026_OOPS_Project/libs/imgui/imgui.cpp || cmake_object_order_depends_target_imgui_app
   DEP_FILE = CMakeFiles\imgui_app.dir\libs\imgui\imgui.cpp.obj.d
   FLAGS = -std=gnu++17
@@ -244,7 +252,7 @@ build CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_opengl3.cpp.obj: C
 #############################################
 # Link the executable imgui_app.exe
 
-build imgui_app.exe: CXX_EXECUTABLE_LINKER__imgui_app_ CMakeFiles/imgui_app.dir/src/main.cpp.obj CMakeFiles/imgui_app.dir/src/MachineController.cpp.obj CMakeFiles/imgui_app.dir/src/UI/FactoryFloorView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/MachineCardView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/SimulationControlView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/StatisticsView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/UIManager.cpp.obj CMakeFiles/imgui_app.dir/src/UI/InspectorView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/EventLogView.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/AbstractMachine.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/FactorySimulation.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Conveyor.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Cutter.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Assembler.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Painter.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/EventLogger.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/FactoryStatistics.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/PipelineEngine.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui_draw.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui_tables.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui_widgets.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_sdl2.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_opengl3.cpp.obj | C$:/msys64/ucrt64/lib/libSDL2main.a C$:/msys64/ucrt64/lib/libSDL2.dll.a
+build imgui_app.exe: CXX_EXECUTABLE_LINKER__imgui_app_ CMakeFiles/imgui_app.dir/src/main.cpp.obj CMakeFiles/imgui_app.dir/src/MachineController.cpp.obj CMakeFiles/imgui_app.dir/src/UI/FactoryFloorView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/SimulationControlView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/StatisticsView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/UIManager.cpp.obj CMakeFiles/imgui_app.dir/src/UI/InspectorView.cpp.obj CMakeFiles/imgui_app.dir/src/UI/EventLogView.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/AbstractMachine.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/FactorySimulation.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Conveyor.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Cutter.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Assembler.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/Painter.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/EventLogger.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/FactoryStatistics.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/PipelineEngine.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/PipelineBuilder.cpp.obj CMakeFiles/imgui_app.dir/src/Backend/MachineRegistry.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui_draw.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui_tables.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/imgui_widgets.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_sdl2.cpp.obj CMakeFiles/imgui_app.dir/libs/imgui/backends/imgui_impl_opengl3.cpp.obj | C$:/msys64/ucrt64/lib/libSDL2main.a C$:/msys64/ucrt64/lib/libSDL2.dll.a
   LINK_FLAGS = -mwindows
   LINK_LIBRARIES = C:/msys64/ucrt64/lib/libSDL2main.a  C:/msys64/ucrt64/lib/libSDL2.dll.a  -lopengl32  -lshell32  -Wl,--undefined=WinMain  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\imgui_app.dir

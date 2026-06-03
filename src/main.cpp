@@ -89,9 +89,7 @@ int main(int argc, char* argv[]) {
         //   UIManager 내부에서 각 View와 창 위치를 일괄 관리한다.
         uiManager.renderAll(
             snap,
-            factory.getCutterCtrl(),
-            factory.getAssemblerCtrl(),
-            factory.getPainterCtrl(),
+            factory,
             cmd
         );  
 
