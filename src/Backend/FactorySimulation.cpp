@@ -5,6 +5,92 @@ FactorySimulation::FactorySimulation() {
     m_pipeline.applyScenario(m_scenario);
 }
 
+void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
+
+    // Reset (최우선 처리)
+    if (cmd.OnResetClicked) {
+        m_simState = SimulationState::STOPPED;
+        m_tick     = 0;
+
+        m_pipeline.reset();
+        m_stats.reset();
+        m_logger.clear();
+
+        m_logger.log(0, "── Simulation reset ──");
+
+        // Reset 후 현재 시나리오 재적용
+        m_pipeline.applyScenario(m_scenario);
+        return;  // Reset이면 다른 커맨드 무시
+    }
+
+    if (cmd.scenarioChanged) {
+        SimulationScenario newScenario =
+            static_cast<SimulationScenario>(cmd.newScenario);
+
+        if (newScenario != m_scenario) {
+            m_scenario = newScenario;
+            m_pipeline.applyScenario(m_scenario);
+
+            const char* names[] = { "Normal Flow", "Random Breakdown" };
+            m_logger.log(m_tick,
+                "Scenario changed → " + string(names[cmd.newScenario]));
+        }
+    }
+
+    if (cmd.speedChanged && cmd.newSpeed >= 1 && cmd.newSpeed <= 5) {
+        m_speed = cmd.newSpeed;
+    }
+
+    if (cmd.OnStartClicked) {
+        if (m_simState == SimulationState::STOPPED ||
+            m_simState == SimulationState::PAUSED)
+        {
+            m_simState = SimulationState::RUNNING;
+            m_logger.log(m_tick,
+                "Simulation started (tick " + to_string(m_tick) + ")");
+        }
+    }
+
+    if (cmd.OnPauseClicked) {
+        if (m_simState == SimulationState::RUNNING) {
+            m_simState = SimulationState::PAUSED;
+            m_logger.log(m_tick,
+                "Simulation paused (tick " + to_string(m_tick) + ")");
+        }
+    }
+    //EventLog의 clear를 눌렀을 경우
+    if (cmd.OnClearLogClicked) {
+        m_logger.clear();
+    }
+}
+
+//  PipelineEngine::step()을 호출하고,
+//  반환된 PipelineStepResult를 FactoryStatistics / EventLogger에 위임
+void FactorySimulation::tick() {
+    if (m_simState != SimulationState::RUNNING) return;
+
+    PipelineStepResult result = m_pipeline.step(m_tick);
+
+    // 통계 집계 위임
+    for (int i = 0; i < result.newFinished; ++i) m_stats.recordFinished();
+    for (int i = 0; i < result.newLost; ++i) m_stats.recordLost();
+    for (int i = 0; i < result.newBreakdowns; ++i) m_stats.recordBreakdown();
+
+    // 완성품 로그에 누적 수 보정 (PipelineEngine은 누적 수를 모름)
+    for (const string& msg : result.logs) {
+        string final_msg = msg;
+        // "Finished good #(cumulative)" 플레이스홀더를 실제 값으로 치환
+        const string placeholder = "#(cumulative)";
+        size_t pos = final_msg.find(placeholder);
+        if (pos != string::npos) {
+            final_msg.replace(pos, placeholder.size(), "#" + to_string(m_stats.getFinishedGoods()));
+        }
+        m_logger.log(m_tick, final_msg);
+    }
+
+    ++m_tick;
+}
+
 size_t FactorySimulation::getMachineCount() const {
     return m_pipeline.getMachineCount();
 }
@@ -31,45 +117,4 @@ FactorySnap FactorySimulation::getSnapshot() const {
     snap.recentLogs = m_logger.getLog();
 
     return snap;
-}
-
-void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
-    if (cmd.OnStartClicked) {
-        m_simState = SimulationState::RUNNING;
-    }
-    if (cmd.OnPauseClicked) {
-        m_simState = SimulationState::PAUSED;
-    }
-    if (cmd.OnResetClicked) {
-        m_simState = SimulationState::STOPPED;
-        m_tick = 0;
-        m_pipeline.reset();
-        m_stats.reset();
-        m_logger.clear();
-    }
-    if (cmd.OnClearLogClicked) {
-        m_logger.clear();
-    }
-    if (cmd.scenarioChanged) {
-        m_scenario = static_cast<SimulationScenario>(cmd.newScenario);
-        m_pipeline.applyScenario(m_scenario);
-    }
-    if (cmd.speedChanged) {
-        m_speed = cmd.newSpeed;
-    }
-}
-
-void FactorySimulation::tick() {
-    if (m_simState == SimulationState::RUNNING) {
-        m_tick++;
-        PipelineStepResult res = m_pipeline.step(m_tick);
-        
-        for (int i = 0; i < res.newFinished; ++i) m_stats.recordFinished();
-        for (int i = 0; i < res.newLost; ++i) m_stats.recordLost();
-        for (int i = 0; i < res.newBreakdowns; ++i) m_stats.recordBreakdown();
-        
-        for (const string& msg : res.logs) {
-            m_logger.log(m_tick, msg);
-        }
-    }
 }
