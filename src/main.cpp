@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     //특수문자,한글이 깨지지 않도록 NotoSansKR 폰트 추가.
-     io.Fonts->AddFontFromFileTTF("../Assets/Fonts/NotoSansKR-Bold.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesKorean());
+     io.Fonts->AddFontFromFileTTF("Assets/Fonts/NotoSansKR-Bold.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesKorean());
 
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
