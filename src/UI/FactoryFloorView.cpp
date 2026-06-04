@@ -51,6 +51,13 @@ void renderMachineEntry(MachineController& controller, MachineController*& curre
     }
 
     ImGui::ProgressBar(snap.progress, ImVec2(300.0f, 0.0f), "Progress");
+    
+    // 체력 바 추가
+    ImVec4 healthColor = (snap.health >= 0.5f) ? ImVec4(0, 1, 0, 1) : 
+                         (snap.health > 0.3f) ? ImVec4(1, 0.8f, 0, 1) : ImVec4(1, 0, 0, 1);
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, healthColor);
+    ImGui::ProgressBar(snap.health, ImVec2(300.0f, 0.0f), "Health");
+    ImGui::PopStyleColor();
 }
 }
 
