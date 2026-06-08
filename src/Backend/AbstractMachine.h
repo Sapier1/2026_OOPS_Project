@@ -15,6 +15,7 @@ protected:
 
     bool m_hasItem = false; // 현재 처리 중인 아이템 보유 여부
     bool m_outputReady = false; // 완료된 아이템이 출력 대기 중
+    bool m_forcedBreak = false; // 강제 고장 여부
 
     int m_repairTime = 5;
     int m_repairProgress = 0;
@@ -40,6 +41,9 @@ public:
 
     // Call when FactorySimulation changes scenario
     void setBreakdownProb(float prob);
+
+    bool wasForcedBreak() const;
+    void clearForcedBreak();
 
     bool acceptItem();
     bool hasOutputReady() const;

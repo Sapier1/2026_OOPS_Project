@@ -23,6 +23,10 @@ void AbstractMachine::setBreakdownProb(float prob) {
     m_breakdownProb = prob;
 }
 
+bool AbstractMachine::wasForcedBreak() const { return m_forcedBreak; }
+void AbstractMachine::clearForcedBreak() { m_forcedBreak = false; }
+
+
 bool AbstractMachine::acceptItem() {
     // IDLE 상태이고 현재 처리 중인 아이템이 없을 때만 수락
     if (m_state != MachineState::IDLE || m_hasItem) return false;
@@ -59,6 +63,7 @@ void AbstractMachine::forceBreak() {
     m_hasItem = false;
     m_outputReady = false;
     m_breakdownCount++;
+    m_forcedBreak = true;
 }
 
 void AbstractMachine::reset() {
@@ -70,4 +75,5 @@ void AbstractMachine::reset() {
     m_outputReady = false;
     m_completedCount = 0;
     m_breakdownCount = 0;
+    m_forcedBreak = false;
 }

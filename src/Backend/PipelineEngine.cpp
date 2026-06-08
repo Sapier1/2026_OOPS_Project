@@ -55,15 +55,27 @@ PipelineStepResult PipelineEngine::step(int tick) {
     for (auto& node : m_nodes)
         prevBreak.push_back(node.machine->getBreakdownCount());
 
+    for (size_t i = 0; i < m_nodes.size(); ++i) {
+        if (m_nodes[i].machine->wasForcedBreak()) {
+            ++result.newBreakdowns;
+            result.logs.push_back(
+                "[Tick " + to_string(tick) + "] " +
+                m_nodes[i].machine->getMachineName() + " force-broken!");
+            m_nodes[i].machine->clearForcedBreak();
+        }
+    }
+
     for (auto& node : m_nodes)
         node.machine->update(tick);
 
     for (size_t i = 0; i < m_nodes.size(); ++i) {
-        if (m_nodes[i].machine->getBreakdownCount() > prevBreak[i]) {
+        if (m_nodes[i].machine->getBreakdownCount() > prevBreak[i]
+            && !m_nodes[i].machine->wasForcedBreak())  // forced는 이미 처리됨
+        {
             ++result.newBreakdowns;
             result.logs.push_back(
                 "[Tick " + to_string(tick) + "] " +
-                m_nodes[i].machine->getMachineName() + " BROKEN");
+                m_nodes[i].machine->getMachineName() + " broken.");
         }
     }
 
