@@ -6,6 +6,7 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 #include <stdio.h>
+#include <fstream>
 
 #include "Backend/FactorySimulation.h"
 #include "SimulationCmd.h"
@@ -37,7 +38,21 @@ int main(int argc, char* argv[]) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     //특수문자,한글이 깨지지 않도록 NotoSansKR 폰트 추가.
-     io.Fonts->AddFontFromFileTTF("Assets/Fonts/NotoSansKR-Bold.ttf", 16.0f, NULL, io.Fonts->GetGlyphRangesKorean());
+    const char* path1 = "Assets/Fonts/NotoSansKR-Bold.ttf";
+    const char* path2 = "../Assets/Fonts/NotoSansKR-Bold.ttf";
+    const char* targetPath = nullptr;
+
+    if (std::ifstream(path1).good()) {
+        targetPath = path1;
+    } else if (std::ifstream(path2).good()) {
+        targetPath = path2;
+    }
+
+    if (targetPath != nullptr) {
+        io.Fonts->AddFontFromFileTTF(targetPath, 16.0f, NULL, io.Fonts->GetGlyphRangesKorean());
+    } else {
+        printf("Warning: Could not find NotoSansKR-Bold.ttf. Falling back to default font.\n");
+    }
 
     ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
