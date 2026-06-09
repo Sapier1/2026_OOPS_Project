@@ -21,7 +21,7 @@ void EventLogView::render(const std::vector<EventEntry>& logs, SimulationCmd& ou
         
         // 키워드에 따라 텍스트 색상을 다르게 지정
         ImVec4 color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // 기본 흰색
-        if (entry.message.find("BROKEN") != std::string::npos || entry.message.find("lost") != std::string::npos) {
+        if (entry.message.find("BROKEN") != std::string::npos || entry.message.find("broken") != std::string::npos || entry.message.find("lost") != std::string::npos) {
             color = ImVec4(1.0f, 0.4f, 0.4f, 1.0f); // 에러/고장은 빨간색
         } else if (entry.message.find("finished") != std::string::npos || entry.message.find("repaired") != std::string::npos) {
             color = ImVec4(0.4f, 1.0f, 0.4f, 1.0f); // 성공/수리는 초록색
