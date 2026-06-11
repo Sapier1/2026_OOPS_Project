@@ -1,12 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
+#include "../EventLogSnap.h"
 using namespace std;
-
-struct EventEntry {
-    int tick;
-    string message;
-};
 
 class EventLogger {
 public:
