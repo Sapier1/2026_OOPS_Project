@@ -37,7 +37,7 @@ void PipelineEngine::stepFeedMachines(SimulationScenario s) {
         if (node.machine->getState() != MachineState::IDLE) continue;
  
         // Bottleneck 시나리오: 출력 컨베이어가 가득 찼으면 투입 중단
-        if (s == SimulationScenario::Bottleneck
+        if (s == SimulationScenario::BottleNeck
             && node.outputConv != nullptr
             && node.outputConv->isFull())
         {
@@ -146,7 +146,7 @@ void PipelineEngine::applyScenario(SimulationScenario s) {
             for (auto& node : m_nodes)
                 node.machine->setBreakdownProb(PROB_BREAKDOWN);
              break;
-        case SimulationScenario::Bottleneck:
+        case SimulationScenario::BottleNeck:
             for (auto& node : m_nodes)
                 if (node.machine->getMachineName() == "Assembler")
                     node.machine->setProcessTime(12);
