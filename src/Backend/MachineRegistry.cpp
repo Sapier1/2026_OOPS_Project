@@ -8,7 +8,6 @@ MachineRegistry& MachineRegistry::instance() {
 
 void MachineRegistry::registerMachine(function<unique_ptr<AbstractMachine>()> creator) {
     m_entries.push_back({creator});
-    m_sorted = false;
 }
 
 const vector<MachineEntry>& MachineRegistry::getAll() {

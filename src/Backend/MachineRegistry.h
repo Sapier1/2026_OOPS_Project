@@ -19,7 +19,6 @@ public:
 
 private:
     vector<MachineEntry> m_entries;
-    bool m_sorted = false;
 };
 
 #define REGISTER_MACHINE(ClassName) \
@@ -30,4 +29,4 @@ private:
             } \
         ); \
         return true; \
-    }();
+    }();
