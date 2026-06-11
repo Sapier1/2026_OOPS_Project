@@ -11,21 +11,16 @@ void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
     if (cmd.OnResetClicked) {
         m_simState = SimulationState::STOPPED;
         m_tick     = 0;
-
         m_pipeline.reset();
         m_stats.reset();
         m_logger.clear();
-
         m_logger.log(0, "── Simulation reset ──");
-
-        // Reset 후 현재 시나리오 재적용
         m_pipeline.applyScenario(m_scenario);
-        return;  // Reset이면 다른 커맨드 무시
+        return;
     }
 
     if (cmd.scenarioChanged) {
-        SimulationScenario newScenario =
-            static_cast<SimulationScenario>(cmd.newScenario);
+        SimulationScenario newScenario = static_cast<SimulationScenario>(cmd.newScenario);
 
         if (newScenario != m_scenario) {
             m_scenario = newScenario;
@@ -37,9 +32,8 @@ void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
         }
     }
 
-    if (cmd.speedChanged && cmd.newSpeed >= 1 && cmd.newSpeed <= 5) {
+    if (cmd.speedChanged && cmd.newSpeed >= 1 && cmd.newSpeed <= 5)
         m_speed = cmd.newSpeed;
-    }
 
     if (cmd.OnStartClicked) {
         if (m_simState == SimulationState::STOPPED ||
@@ -77,10 +71,9 @@ void FactorySimulation::tick() {
     for (int i = 0; i < result.newBreakdowns; ++i) m_stats.recordBreakdown();
 
     // 완성품 로그에 누적 수 보정 (PipelineEngine은 누적 수를 모름)
+    const string placeholder = "#(cumulative)";
     for (const string& msg : result.logs) {
         string final_msg = msg;
-        // "Finished good #(cumulative)" 플레이스홀더를 실제 값으로 치환
-        const string placeholder = "#(cumulative)";
         size_t pos = final_msg.find(placeholder);
         if (pos != string::npos) {
             final_msg.replace(pos, placeholder.size(), "#" + to_string(m_stats.getFinishedGoods()));

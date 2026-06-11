@@ -21,6 +21,5 @@ struct FactorySnap {
 
     vector<MachineSnap> machines;
     vector<ConveyorSnap> conveyors;
-
     vector<EventEntry> recentLogs;
 };
