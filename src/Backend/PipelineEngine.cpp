@@ -84,12 +84,20 @@ PipelineStepResult PipelineEngine::step(int tick) {
 
 void PipelineEngine::autoRepair(int tick, PipelineStepResult& result) {
     for (auto& node : m_nodes) {
-        if (node.machine->getState() == MachineState::BROKEN) {
+        if (node.machine->getState() != MachineState::BROKEN) return;
+        if (node.machine->wasForcedBreak()) continue;
+
+        node.machine->incrementBrokenTicks();
+        if (node.machine->getBrokenTicks() < node.machine->getBrokenWaitTime())
+            continue;
+
             node.machine->repair();
-            result.logs.push_back(
-                "[Tick " + to_string(tick) +
-                "] Technician dispatched → " + node.machine->getMachineName());
-        }
+
+            if (node.machine->getHealth() <= 0.0f) {
+                result.logs.push_back(
+                    "[Tick " + to_string(tick) + "] WARNING: " +
+                    node.machine->getMachineName() + " HP critical — needs replacement!");
+            }
     }
 }
 

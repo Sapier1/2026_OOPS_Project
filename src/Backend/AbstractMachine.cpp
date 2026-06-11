@@ -18,11 +18,16 @@ int AbstractMachine::getProcessTime() const { return m_processTime; }
 float AbstractMachine::getBrokenScale() const { return m_brokenScale; }
 int AbstractMachine::getCompletedCount() const { return m_completedCount; }
 int AbstractMachine::getBreakdownCount() const  { return m_breakdownCount; }
+int AbstractMachine::getBrokenTicks() const { return m_brokenTicks; }
+int AbstractMachine::getBrokenWaitTime() const { return m_brokenWaitTime; }
 
 void AbstractMachine::setBreakdownProb(float prob) {
     m_breakdownProb = prob;
 }
 
+void AbstractMachine::incrementBrokenTicks() {
+    if (m_state == MachineState::BROKEN) ++m_brokenTicks;
+}
 bool AbstractMachine::wasForcedBreak() const { return m_forcedBreak; }
 void AbstractMachine::clearForcedBreak() { m_forcedBreak = false; }
 
@@ -55,6 +60,9 @@ void AbstractMachine::repair() {
     m_currentProgress = 0;
     m_hasItem = false;      // 고장 중 처리 중이던 아이템은 폐기
     m_outputReady = false;
+
+    m_health = min(1.0f, m_health + m_repairHpScale); // 수리 시 내구도 소량 회복
+    m_brokenTicks = 0;
 }
 
 void AbstractMachine::forceBreak() {
@@ -76,4 +84,5 @@ void AbstractMachine::reset() {
     m_completedCount = 0;
     m_breakdownCount = 0;
     m_forcedBreak = false;
+    m_brokenTicks = 0;
 }

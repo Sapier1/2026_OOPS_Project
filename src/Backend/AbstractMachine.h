@@ -12,6 +12,7 @@ protected:
     int m_currentProgress = 0;
     float m_breakdownProb;
     float m_health = 1.0f; // 0.0~1.0, 고장마다 감소
+    const float m_repairHpScale = 0.05f; // 수리 시 회복량
 
     bool m_hasItem = false; // 현재 처리 중인 아이템 보유 여부
     bool m_outputReady = false; // 완료된 아이템이 출력 대기 중
@@ -22,6 +23,9 @@ protected:
     
     int m_completedCount = 0;
     int m_breakdownCount = 0;
+
+    int m_brokenTicks = 0; // BROKEN 상태로 머문 틱 수
+    int m_brokenWaitTime = 2; // 이 틱 수가 지나야 repair() 가능
 
     const float m_brokenScale = 0.1f; // 고장 시 내구도 감소량
 
@@ -38,12 +42,16 @@ public:
     float getBrokenScale() const;
     int getCompletedCount() const;
     int getBreakdownCount() const;
+    int getBrokenTicks() const;
+    int getBrokenWaitTime() const;
 
     // Call when FactorySimulation changes scenario
     void setBreakdownProb(float prob);
 
+    void incrementBrokenTicks();
     bool wasForcedBreak() const;
     void clearForcedBreak();
+    bool isRetired() const; // 내구도 0.0 도달 여부 -> 자동 수리
 
     bool acceptItem();
     bool hasOutputReady() const;
