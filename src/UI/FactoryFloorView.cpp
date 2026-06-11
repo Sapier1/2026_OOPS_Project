@@ -15,7 +15,7 @@ void renderConveyorLoad(const char* label, const ConveyorSnap& conveyor)
     ImGui::Text("%s", label);
     // 요구사항 'Conveyor load shown via ImGui::ProgressBar' 충족 및 커스텀 디자인
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.22f, 0.54f, 0.87f, 1.0f));
-    ImGui::ProgressBar(fraction, ImVec2(-1.0f, 14.0f), overlay.c_str());
+    ImGui::ProgressBar(fraction, ImVec2(-1.0f, 0.0f), overlay.c_str());
     ImGui::PopStyleColor();
 }
 
