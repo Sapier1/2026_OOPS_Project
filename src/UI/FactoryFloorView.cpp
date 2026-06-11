@@ -9,14 +9,14 @@ namespace
 {
 void renderConveyorLoad(const char* label, const ConveyorSnap& conveyor)
 {
-    const float load = conveyor.capacity > 0
-        ? static_cast<float>(conveyor.size) / conveyor.capacity
-        : 0.0f;
+    float fraction = conveyor.capacity > 0 ? static_cast<float>(conveyor.size) / conveyor.capacity : 0.0f;
+    std::string overlay = std::to_string(conveyor.size) + " / " + std::to_string(conveyor.capacity);
 
     ImGui::Text("%s", label);
-    ImGui::ProgressBar(load, ImVec2(0.0f, 0.0f));
-    ImGui::SameLine();
-    ImGui::Text("%d/%d", conveyor.size, conveyor.capacity);
+    // 요구사항 'Conveyor load shown via ImGui::ProgressBar' 충족 및 커스텀 디자인
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, ImVec4(0.22f, 0.54f, 0.87f, 1.0f));
+    ImGui::ProgressBar(fraction, ImVec2(-1.0f, 14.0f), overlay.c_str());
+    ImGui::PopStyleColor();
 }
 
 void renderMachineEntry(MachineController& controller, MachineController*& currentSelected)
@@ -41,7 +41,7 @@ void renderMachineEntry(MachineController& controller, MachineController*& curre
     ImGui::PushStyleColor(ImGuiCol_Text, stateColor);
     
     std::string label = snap.name + " [" + stateText + "]##" + snap.name;
-    if (ImGui::Selectable(label.c_str(), isSelected, 0, ImVec2(300, 20))) {
+    if (ImGui::Selectable(label.c_str(), isSelected, 0, ImVec2(0, 20))) {
         currentSelected = &controller;
     }
     
@@ -50,13 +50,13 @@ void renderMachineEntry(MachineController& controller, MachineController*& curre
         ImGui::PopStyleColor();
     }
 
-    ImGui::ProgressBar(snap.progress, ImVec2(300.0f, 0.0f), "Progress");
+    ImGui::ProgressBar(snap.progress, ImVec2(-1.0f, 0.0f), "Progress");
     
     // 체력 바 추가
     ImVec4 healthColor = (snap.health >= 0.5f) ? ImVec4(0, 1, 0, 1) : 
                          (snap.health > 0.3f) ? ImVec4(1, 0.8f, 0, 1) : ImVec4(1, 0, 0, 1);
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, healthColor);
-    ImGui::ProgressBar(snap.health, ImVec2(300.0f, 0.0f), "Health");
+    ImGui::ProgressBar(snap.health, ImVec2(-1.0f, 0.0f), "Health");
     ImGui::PopStyleColor();
 }
 }
