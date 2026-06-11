@@ -73,6 +73,10 @@ void AbstractMachine::setBreakdownProb(float prob) {
     m_breakdownProb = prob;
 }
 
+void AbstractMachine::setProcessTime(int procTime) {
+    m_processTime = procTime;
+}
+
 bool AbstractMachine::wasForcedBreak() const { return m_forcedBreak; }
 void AbstractMachine::clearForcedBreak() { m_forcedBreak = false; }
 

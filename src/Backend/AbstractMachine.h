@@ -52,6 +52,7 @@ public:
 
     // Call when FactorySimulation changes scenario
     void setBreakdownProb(float prob);
+    void setProcessTime(int procTime);
 
     bool wasForcedBreak() const;
     void clearForcedBreak();

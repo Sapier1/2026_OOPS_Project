@@ -26,7 +26,7 @@ void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
             m_scenario = newScenario;
             m_pipeline.applyScenario(m_scenario);
 
-            const char* names[] = { "Normal Flow", "Random Breakdown" };
+            const char* names[] = { "Normal Flow", "Random Breakdown", "OverFlow", "Bottleneck" };
             m_logger.log(m_tick,
                 "Scenario changed → " + string(names[cmd.newScenario]));
         }
@@ -63,7 +63,7 @@ void FactorySimulation::applyCmd(const SimulationCmd& cmd) {
 void FactorySimulation::tick() {
     if (m_simState != SimulationState::RUNNING) return;
 
-    PipelineStepResult result = m_pipeline.step(m_tick);
+    PipelineStepResult result = m_pipeline.step(m_tick, m_scenario);
 
     // 통계 집계 위임
     for (int i = 0; i < result.newFinished; ++i) m_stats.recordFinished();

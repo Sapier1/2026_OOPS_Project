@@ -18,10 +18,10 @@ MachineController& PipelineEngine::getMachineCtrl(size_t i) { return m_controlle
 // 기존 step()은 약 80줄의 단일 함수로 5가지 책임을 처리했는데,
 // 각 단계를 분리하여 가독성 및 테스트 용이성 향상.
 
-PipelineStepResult PipelineEngine::step(int tick) {
+PipelineStepResult PipelineEngine::step(int tick, SimulationScenario s) {
     PipelineStepResult result;
  
-    stepFeedMachines();
+    stepFeedMachines(s);
     stepFlushOutputs(tick, result);
     stepCheckForcedBreaks(tick, result);
     stepUpdateMachines(tick, result);
@@ -31,11 +31,20 @@ PipelineStepResult PipelineEngine::step(int tick) {
 }
 
 // 1. 컨베이어 → 기계 투입
-void PipelineEngine::stepFeedMachines() {
+void PipelineEngine::stepFeedMachines(SimulationScenario s) {
     for (int i = static_cast<int>(m_nodes.size()) - 1; i >= 0; --i) {
         auto& node = m_nodes[i];
         if (node.machine->getState() != MachineState::IDLE) continue;
  
+        // Bottleneck 시나리오: 출력 컨베이어가 가득 찼으면 투입 중단
+        if (s == SimulationScenario::Bottleneck
+            && node.outputConv != nullptr
+            && node.outputConv->isFull())
+        {
+            // 투입하지 않고 IDLE 유지 — 제품 생산 없음
+            continue;
+        }
+
         if (node.inputConv == nullptr) {
             // 파이프라인 첫 번째 기계: 원재료 자동 투입
             node.machine->acceptItem();
@@ -122,10 +131,34 @@ void PipelineEngine::stepAutoRepair(int tick, PipelineStepResult& result) {
 }
 
 void PipelineEngine::applyScenario(SimulationScenario s) {
-    float prob = (s == SimulationScenario::RandomBreakdown)
-                     ? PROB_BREAKDOWN : PROB_NORMAL;
-    for (auto& node : m_nodes)
-        node.machine->setBreakdownProb(prob);
+    for (auto& node : m_nodes) {
+        node.machine->setProcessTime(node.machine->getProcessTime());
+    }
+    
+    switch (s) {
+        case SimulationScenario::NormalFlow:
+            for (auto& node : m_nodes) {
+                node.machine->setBreakdownProb(node.machine->getBreakdownProb());
+                node.machine->setProcessTime(node.machine->getProcessTime());
+            }
+             break;
+        case SimulationScenario::RandomBreakdown:
+            for (auto& node : m_nodes)
+                node.machine->setBreakdownProb(PROB_BREAKDOWN);
+             break;
+        case SimulationScenario::Bottleneck:
+            for (auto& node : m_nodes)
+                if (node.machine->getMachineName() == "Assembler")
+                    node.machine->setProcessTime(12);
+            break;
+        case SimulationScenario::OverFlow:
+             for (auto& node : m_nodes)
+                if (node.machine->getMachineName() == "Assembler")
+                    node.machine->setProcessTime(10);
+             break;
+        default:
+            break;
+    }
 }
 
 vector<MachineSnap> PipelineEngine::getMachineSnaps() const {

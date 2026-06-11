@@ -30,7 +30,7 @@ public:
     // PipelineBuilder가 호출 — 기계/컨베이어 외부 주입
     void registerNode(AbstractMachine* m, Conveyor* in, Conveyor* out);
 
-    PipelineStepResult step(int tick);
+    PipelineStepResult step(int tick, SimulationScenario s);
     void applyScenario(SimulationScenario s);
     void reset();
 
@@ -42,7 +42,7 @@ public:
     MachineController& getMachineCtrl(size_t index);
 
 private:
-    void stepFeedMachines(); // 컨베이어 → 기계
+    void stepFeedMachines(SimulationScenario s); // 컨베이어 → 기계
     void stepFlushOutputs(int tick, PipelineStepResult& result); // 기계 출력 → 컨베이어/완성품
     void stepCheckForcedBreaks(int tick, PipelineStepResult& result);
     void stepUpdateMachines(int tick, PipelineStepResult& result);

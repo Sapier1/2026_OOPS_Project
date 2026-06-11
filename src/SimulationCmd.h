@@ -7,6 +7,8 @@
 enum class SimulationScenario {
     NormalFlow      = 0, // 고장 확률 2% (기본값)
     RandomBreakdown = 1, // 고장 확률 6%, 자동 수리
+    OverFlow        = 2, // 컨베이어 포화 시 아이템 손실
+    BottleNeck      = 3, // Assembler 작업 시간 12틱으로 증가
 };
 
 struct SimulationCmd {
