@@ -45,6 +45,10 @@ void InspectorView::render(MachineController* selectedMachine) {
         ImGui::PushStyleColor(ImGuiCol_PlotHistogram, healthColor);
         ImGui::ProgressBar(snap.health, ImVec2(0.0f, 0.0f));
         ImGui::PopStyleColor();
+        ImGui::Spacing();
+
+        // 고장 확률 (Breakdown Probability)
+        ImGui::Text("Breakdown Prob: %.1f%%", snap.breakdownProb * 100.0f);
 
         // 강제 고장 및 수리 버튼 (MachineCardView에서 가져온 내용)
         ImGui::Separator();
