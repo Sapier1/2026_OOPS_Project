@@ -35,6 +35,9 @@ set(SOURCES
     src/Backend/PipelineEngine.cpp
     src/Backend/PipelineBuilder.cpp
     src/Backend/MachineRegistry.cpp
+    src/Backend/MachineProcessor.cpp
+    src/Backend/MachineHealth.cpp
+    src/Backend/MachineStats.cpp
     # Add your new source files here. Example:
     # src/GameManager.cpp
     # src/Player.cpp

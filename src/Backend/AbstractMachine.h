@@ -1,70 +1,66 @@
 #pragma once
 #include "SimulationObject.h"
 #include "MachineRegistry.h"
+#include "MachineProcessor.h"
+#include "MachineHealth.h"
+#include "MachineStats.h"
 
 enum class MachineState { IDLE, WORKING, BROKEN, REPAIRING };
 
 class AbstractMachine : public SimulationObject {
-protected:
-    void updateBase(int tick);
-
-    MachineState m_state = MachineState::IDLE;
-
-    int m_processTime;
-    int m_currentProgress = 0;
-    float m_breakdownProb;
-    float m_health = 1.0f; // 0.0~1.0, 고장마다 감소
-
-    bool m_hasItem = false; // 현재 처리 중인 아이템 보유 여부
-    bool m_outputReady = false; // 완료된 아이템이 출력 대기 중
-    bool m_forcedBreak = false; // 강제 고장 여부
-
-    int m_repairTime;
-    int m_repairProgress = 0;
-    
-    int m_completedCount = 0;
-    int m_breakdownCount = 0;
-    int m_brokenTicks = 0; // BROKEN 상태로 머문 틱 수
-
-    static constexpr int BROKEN_WAIT_TIME = 5; // 이 틱 수가 지나야 repair() 가능
-    static constexpr float BROKEN_SCALE = 0.1f; // 고장 시 내구도 감소량
-    static constexpr float REPAIR_HP_SCALE = 0.05f; // 수리 시 회복량
-
 public:
-    // repairTime: REPAIRING 상태에서 IDLE로 복귀까지 걸리는 틱 수
-    AbstractMachine(int procTime, float prob, int repairTime = 5);
-
+    AbstractMachine(int procTime, float breakdownProb, int repairTime = 5);
     virtual string getMachineName() const = 0;
-
     void update(int tick) override;
 
+    // 상태 / 진행률
     MachineState getState() const;
-    float getProgress() const; // 작업 or 수리 진행률 0.0~1.0
-    float getHealth() const; // 기계 상태 (0.0~1.0)
-    int getProcessTime() const; // 4 ticks 표시용
-    
-    int getCompletedCount() const;
-    int getBreakdownCount() const;
-    float getBrokenScale() const;
-    int getBrokenTicks() const;
-    int getBrokenWaitTime() const;
-    float getBreakdownProb() const;
+    float getProgress() const; // 작업 또는 수리 진행률 0.0~1.0
 
-    // Call when FactorySimulation changes scenario
-    void setBreakdownProb(float prob);
-    void setProcessTime(int procTime);
-
-    bool wasForcedBreak() const;
-    void clearForcedBreak();
-    bool isRetired() const; // 내구도 0.0 도달 여부 -> 자동 수리
-
+    // MachineProcessor 위임
     bool acceptItem();
     bool hasOutputReady() const;
     bool hasItem() const;
     void collectOutput();
+    int  getProcessTime() const;
 
-    void repair();
+    // MachineHealth 위임
+    float getHealth() const;
+    float getBreakdownProb() const;
+    bool wasForcedBreak() const;
+    void clearForcedBreak();
+    bool isRetired()  const;
+
     void forceBreak();
+    void repair();
+
+    // MachineStats 위임 
+    int  getCompletedCount() const;
+    int  getBreakdownCount() const;
+    int  getBrokenTicks() const;
+    int  getBrokenWaitTime() const;
+    float getBrokenScale() const;
+
     void incrementBrokenTicks();
+    void abortItem();
+
+    // 시나리오 변경
+    void setBreakdownProb(float prob);
+    void setProcessTime(int procTime);
+    void setProcessTimeMultiplier(float multiplier);
+
     void reset();
+
+protected:
+    MachineState m_state = MachineState::IDLE;
+
+    MachineProcessor m_processor;
+    MachineHealth m_health;
+    MachineStats m_stats;
+
+private:
+    void handleRepairingState();
+    void handleWorkingState();
+
+    static constexpr float BROKEN_SCALE = 0.1f;
 };

@@ -1,132 +1,127 @@
 #include "AbstractMachine.h"
 
-AbstractMachine::AbstractMachine(int procTime, float prob, int repairTime)
-    : m_processTime(procTime)
-    , m_breakdownProb(prob)
-    , m_repairTime(repairTime) 
+AbstractMachine::AbstractMachine(int procTime, float breakdownProb, int repairTime)
+    : m_processor(procTime)
+    , m_health(breakdownProb, repairTime)
+    , m_stats()
 {}
 
-void AbstractMachine::update(int tick) {
-    updateBase(tick);
+void AbstractMachine::update(int /*tick*/) {
+    switch (m_state) {
+        case MachineState::REPAIRING:
+            handleRepairingState();
+            return;
+
+        case MachineState::BROKEN:
+            return;  // repair() 또는 자동 수리(PipelineEngine) 대기
+
+        case MachineState::IDLE:
+        case MachineState::WORKING:
+            handleWorkingState();
+            return;
+    }
 }
 
-void AbstractMachine::updateBase(int tick) {
-    // 1. 수리 진행
-    if (m_state == MachineState::REPAIRING) {
-        ++m_repairProgress;
-        if (m_repairProgress >= m_repairTime) {
-            m_state = MachineState::IDLE;
-            m_repairProgress = 0;
-        }
-        return;
+void AbstractMachine::handleRepairingState() {
+    if (m_health.tickRepair()) {
+        m_health.applyRepairHeal();
+        m_state = MachineState::IDLE;
     }
- 
-    // 2. 고장 상태는 repair() 호출 전까지 대기
-    if (m_state == MachineState::BROKEN) return;
- 
-    // 3. 아이템 없으면 IDLE
-    if (!m_hasItem) {
+}
+
+void AbstractMachine::handleWorkingState() {
+    if (!m_processor.hasItem()) {
         m_state = MachineState::IDLE;
         return;
     }
- 
-    // 4. 랜덤 고장 (WORKING 중에만 발생)
-    if (static_cast<float>(rand()) / RAND_MAX < m_breakdownProb) {
+
+    // 랜덤 고장 판정
+    if (m_health.rollBreakdown()) {
         m_state = MachineState::BROKEN;
-        m_health = std::max(0.0f, m_health - BROKEN_SCALE);
-        ++m_breakdownCount;
-        m_hasItem = false;  // 처리 중 아이템 폐기
+        m_health.applyBreakdownDamage();
+        m_stats.recordBreakdown();
+        // 처리 중 아이템 폐기 — processor 리셋으로 처리
+        m_processor.reset();
         return;
     }
- 
-    // 5. 정상 작업 진행
+
+    // 정상 작업 진행
     m_state = MachineState::WORKING;
-    ++m_currentProgress;
- 
-    // 6. 작업 완료
-    if (m_currentProgress >= m_processTime) {
-        m_currentProgress = 0;
-        m_hasItem         = false;
-        m_outputReady     = true;
-        ++m_completedCount;
+    if (m_processor.tickWork()) {
+        m_stats.recordCompletion();
         m_state = MachineState::IDLE;
     }
 }
 
 MachineState AbstractMachine::getState() const { return m_state; }
-float AbstractMachine::getHealth() const { return m_health; }
-int AbstractMachine::getProcessTime() const { return m_processTime; }
-int AbstractMachine::getCompletedCount() const { return m_completedCount; }
-int AbstractMachine::getBreakdownCount() const  { return m_breakdownCount; }
-int AbstractMachine::getBrokenTicks() const { return m_brokenTicks; }
-int AbstractMachine::getBrokenWaitTime() const { return BROKEN_WAIT_TIME; }
-float AbstractMachine::getBrokenScale() const { return BROKEN_SCALE; }
-float AbstractMachine::getBreakdownProb() const { return m_breakdownProb; }
+
 float AbstractMachine::getProgress() const {
-    if (m_state == MachineState::REPAIRING) {
-        return (m_repairTime > 0) ? (float)m_repairProgress / m_repairTime : 0.0f;
-    }
-    return (m_processTime > 0) ? (float)m_currentProgress / m_processTime : 0.0f;
+    if (m_state == MachineState::REPAIRING)
+        return m_health.getRepairProgress();
+    return m_processor.getProgress();
 }
-
-void AbstractMachine::setBreakdownProb(float prob) {
-    m_breakdownProb = prob;
-}
-
-void AbstractMachine::setProcessTime(int procTime) {
-    m_processTime = procTime;
-}
-
-bool AbstractMachine::wasForcedBreak() const { return m_forcedBreak; }
-void AbstractMachine::clearForcedBreak() { m_forcedBreak = false; }
-
-bool AbstractMachine::isRetired() const { return m_health <= 0.0f; }
 
 bool AbstractMachine::acceptItem() {
-    if (m_state != MachineState::IDLE || m_hasItem) return false;
-    m_hasItem = true;
-    m_currentProgress = 0;
+    if (m_state != MachineState::IDLE) return false;
+    if (!m_processor.acceptItem())     return false;
     m_state = MachineState::WORKING;
     return true;
 }
 
-bool AbstractMachine::hasOutputReady() const { return m_outputReady; }
-bool AbstractMachine::hasItem() const { return m_hasItem; }
-void AbstractMachine::collectOutput() { m_outputReady = false; }
+bool AbstractMachine::hasOutputReady() const { return m_processor.hasOutputReady(); }
+bool AbstractMachine::hasItem()        const { return m_processor.hasItem(); }
+void AbstractMachine::collectOutput()        { m_processor.collectOutput(); }
+int AbstractMachine::getProcessTime() const {
+    return m_processor.getEffectiveProcessTime();
+}
+
+float AbstractMachine::getHealth()       const { return m_health.getHealth(); }
+float AbstractMachine::getBreakdownProb()const { return m_health.getBreakdownProb(); }
+bool  AbstractMachine::wasForcedBreak()  const { return m_health.wasForcedBreak(); }
+void  AbstractMachine::clearForcedBreak()      { m_health.clearForcedBreak(); }
+bool  AbstractMachine::isRetired()       const { return m_health.isRetired(); }
 
 void AbstractMachine::repair() {
     if (m_state != MachineState::BROKEN) return;
     m_state = MachineState::REPAIRING;
-    m_repairProgress = 0;
-    m_currentProgress = 0;
-    m_hasItem = false;      // 고장 중 처리 중이던 아이템은 폐기
-    m_outputReady = false;
-    m_health = min(1.0f, m_health + REPAIR_HP_SCALE); // 수리 시 내구도 소량 회복
-    m_brokenTicks = 0;
+    m_health.startRepair();
+    m_processor.reset();          // 고장 중 진행 중이던 작업 초기화
+    m_stats.resetBrokenTicks();   // brokenTicks만 초기화, completedCount는 유지
 }
 
 void AbstractMachine::forceBreak() {
     m_state = MachineState::BROKEN;
-    m_health = max(0.0f, m_health - BROKEN_SCALE); // 고장마다 내구도 scale만큼 감소
-    m_hasItem = false;
-    m_outputReady = false;
-    m_breakdownCount++;
-    m_forcedBreak = true;
+    m_health.forceBreak();          // 내구도 감소 + forcedBreak 플래그
+    m_stats.recordBreakdown();
+    m_processor.reset();
 }
 
+int   AbstractMachine::getCompletedCount()  const { return m_stats.getCompletedCount(); }
+int   AbstractMachine::getBreakdownCount()  const { return m_stats.getBreakdownCount(); }
+int   AbstractMachine::getBrokenTicks()     const { return m_stats.getBrokenTicks(); }
+int   AbstractMachine::getBrokenWaitTime()  const { return MachineStats::BROKEN_WAIT_TIME; }
+float AbstractMachine::getBrokenScale()     const { return BROKEN_SCALE; }
+
 void AbstractMachine::incrementBrokenTicks() {
-    if (m_state == MachineState::BROKEN) ++m_brokenTicks;
+    if (m_state == MachineState::BROKEN)
+        m_stats.incrementBrokenTicks();
+}
+
+void AbstractMachine::setBreakdownProb(float prob) { m_health.setBreakdownProb(prob); }
+void AbstractMachine::setProcessTime(int t)        { m_processor.setProcessTime(t); }
+void AbstractMachine::setProcessTimeMultiplier(float multiplier) {
+    m_processor.setProcessTimeMultiplier(multiplier);
 }
 
 void AbstractMachine::reset() {
     m_state = MachineState::IDLE;
-    m_currentProgress = 0;
-    m_repairProgress = 0;
-    m_health = 1.0f;
-    m_hasItem = false;
-    m_outputReady = false;
-    m_completedCount = 0;
-    m_breakdownCount = 0;
-    m_forcedBreak = false;
-    m_brokenTicks = 0;
+    m_processor.reset();
+    m_health.reset();
+    m_stats.reset();
+}
+
+void AbstractMachine::abortItem() {
+    if (m_state != MachineState::WORKING) return;
+    m_processor.reset();
+    m_state = MachineState::IDLE;
 }
