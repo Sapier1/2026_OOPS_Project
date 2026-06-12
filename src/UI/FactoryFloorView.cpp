@@ -50,7 +50,10 @@ void renderMachineEntry(MachineController& controller, MachineController*& curre
         ImGui::PopStyleColor();
     }
 
+    ImVec4 progressColor = (snap.state == 3) ? ImVec4(1.0f, 0.85f, 0.0f, 1.0f) : ImVec4(0.22f, 0.54f, 0.87f, 1.0f);
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, progressColor);
     ImGui::ProgressBar(snap.progress, ImVec2(-1.0f, 0.0f), "Progress");
+    ImGui::PopStyleColor();
     
     // 체력 바 추가
     ImVec4 healthColor = (snap.health >= 0.5f) ? ImVec4(0, 1, 0, 1) : 
