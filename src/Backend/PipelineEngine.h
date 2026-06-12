@@ -43,7 +43,7 @@ public:
 
 private:
     void stepFeedMachines(SimulationScenario s); // 컨베이어 → 기계
-    void stepFlushOutputs(int tick, PipelineStepResult& result); // 기계 출력 → 컨베이어/완성품
+    void stepFlushOutputs(int tick, PipelineStepResult& result, SimulationScenario s); // 기계 출력 → 컨베이어/완성품
     void stepCheckForcedBreaks(int tick, PipelineStepResult& result);
     void stepUpdateMachines(int tick, PipelineStepResult& result);
     void stepAutoRepair(int tick, PipelineStepResult& result);

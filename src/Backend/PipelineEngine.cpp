@@ -22,7 +22,7 @@ PipelineStepResult PipelineEngine::step(int tick, SimulationScenario s) {
     PipelineStepResult result;
  
     stepFeedMachines(s);
-    stepFlushOutputs(tick, result);
+    stepFlushOutputs(tick, result, s);
     stepCheckForcedBreaks(tick, result);
     stepUpdateMachines(tick, result);
     stepAutoRepair(tick, result);
@@ -38,6 +38,7 @@ void PipelineEngine::stepFeedMachines(SimulationScenario s) {
  
         // Bottleneck 시나리오: 출력 컨베이어가 가득 찼으면 투입 중단
         if (s == SimulationScenario::BottleNeck
+            && node.inputConv == nullptr
             && node.outputConv != nullptr
             && node.outputConv->isFull())
         {
@@ -56,9 +57,10 @@ void PipelineEngine::stepFeedMachines(SimulationScenario s) {
 }
 
 // 2. 기계 출력 → 다음 컨베이어 or 완성품
-void PipelineEngine::stepFlushOutputs(int tick, PipelineStepResult& result) {
-    for (auto& node : m_nodes) {
+void PipelineEngine::stepFlushOutputs(int tick, PipelineStepResult& result, SimulationScenario s) {
+     for (auto& node : m_nodes) {
         if (!node.machine->hasOutputReady()) continue;
+
         node.machine->collectOutput();
  
         if (node.outputConv == nullptr) {
@@ -70,6 +72,44 @@ void PipelineEngine::stepFlushOutputs(int tick, PipelineStepResult& result) {
             result.logs.push_back(
                 "[Tick " + std::to_string(tick) + "] " +
                 node.machine->getMachineName() + " overflow — product lost");
+        }
+
+        if (s == SimulationScenario::BottleNeck) {
+        for (auto& node : m_nodes) {
+            if (node.outputConv != nullptr
+                && node.outputConv->isFull()
+                && node.machine->getState() == MachineState::WORKING)
+                {
+                    node.machine->abortItem();
+                }
+            }
+        }
+    }
+    for (auto& node : m_nodes) {
+        if (!node.machine->hasOutputReady()) continue;
+
+        node.machine->collectOutput();
+ 
+        if (node.outputConv == nullptr) {
+            ++result.newFinished;
+            result.logs.push_back(
+                "[Tick " + std::to_string(tick) + "] Finished good #(cumulative)");
+        } else if (!node.outputConv->push()) {
+            ++result.newLost;
+            result.logs.push_back(
+                "[Tick " + std::to_string(tick) + "] " +
+                node.machine->getMachineName() + " overflow — product lost");
+        }
+
+        if (s == SimulationScenario::BottleNeck) {
+        for (auto& node : m_nodes) {
+            if (node.outputConv != nullptr
+                && node.outputConv->isFull()
+                && node.machine->getState() == MachineState::WORKING)
+                {
+                    node.machine->abortItem();
+                }
+            }
         }
     }
 }
@@ -147,9 +187,9 @@ void PipelineEngine::applyScenario(SimulationScenario s) {
                 node.machine->setBreakdownProb(PROB_BREAKDOWN);
              break;
         case SimulationScenario::BottleNeck:
-            for (auto& node : m_nodes)
-                if (node.machine->getMachineName() == "Assembler")
-                    node.machine->setProcessTime(12);
+             // 두 번째 기계(index 1)에만 배수 적용 — 이름에 의존하지 않음
+            if (m_nodes.size() > 1)
+                m_nodes[1].machine->setProcessTimeMultiplier(3.0f); // 3배 느리게
             break;
         case SimulationScenario::OverFlow:
              for (auto& node : m_nodes)
