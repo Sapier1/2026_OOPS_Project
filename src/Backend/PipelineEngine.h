@@ -52,7 +52,6 @@ private:
     vector<MachineController> m_controllers;
     vector<Conveyor*>  m_conveyors;
 
-    static constexpr float PROB_NORMAL = 0.02f;
     static constexpr float PROB_BREAKDOWN = 0.06f;
 
     MachineSnap  makeMachineSnap(const AbstractMachine& m) const;

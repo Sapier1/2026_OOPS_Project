@@ -21,7 +21,7 @@ public:
     void tick();
 
     FactorySnap getSnapshot() const;
-    int getSpeed() const { return m_speed; }
+    int getSpeed() const;
 
     size_t getMachineCount() const;
     MachineController& getMachineCtrl(size_t index);

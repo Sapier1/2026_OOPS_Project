@@ -111,3 +111,5 @@ FactorySnap FactorySimulation::getSnapshot() const {
 
     return snap;
 }
+
+int FactorySimulation::getSpeed() const { return m_speed; }
