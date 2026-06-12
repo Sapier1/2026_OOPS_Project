@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "EventLogsnap.h"
+#include "EventLogSnap.h"
 #include "SimulationCmd.h"
 
 class EventLogView {

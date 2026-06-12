@@ -46,7 +46,9 @@ void SimulationControlView::render(
     const char* scenarios[] =
     {
         "Normal Flow",
-        "Random Breakdown"
+        "Random Breakdown",
+        "Overflow",
+        "Bottleneck"
     };
 
     ImGui::SetNextItemWidth(170.0f);
