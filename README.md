@@ -115,26 +115,41 @@ with minimal modification to existing code.
 
 ### 5. Easy Scenario Expansion
 
-Simulation modes are represented using the `SimulationScenario` enumeration:
+The project uses the **Strategy Pattern** to manage simulation scenarios.
+
+All scenarios implement a common interface:
 
 ```cpp
-enum class SimulationScenario {
-    NormalFlow,
-    RandomBreakdown,
-    OverFlow,
-    BottleNeck
+class IScenarioStrategy {
+public:
+    virtual ~IScenarioStrategy() = default;
+    virtual void apply(PipelineEngine& engine) = 0;
 };
 ```
 
-Scenario-specific behavior is applied through the pipeline engine.
+Examples include:
 
-To introduce a new scenario, such as:
+* `NormalFlowStrategy`
+* `RandomBreakdownStrategy`
+* `BottleNeckStrategy`
+* `OverFlowStrategy`
+
+A dedicated `ScenarioFactory` creates the appropriate strategy object based on the selected scenario.
 
 ```cpp
-HighSpeedMode
+auto strategy = ScenarioFactory::create(scenario);
+strategy->apply(engine);
 ```
 
-developers primarily need to add the new scenario definition and its associated behavior, while leaving the rest of the simulation architecture unchanged.
+To add a new scenario, developers only need to:
+
+1. Create a new strategy class derived from `IScenarioStrategy`
+2. Implement the scenario-specific behavior
+3. Register it in `ScenarioFactory`
+
+The simulation engine itself remains unchanged.
+
+This approach significantly improves extensibility and reduces modification of existing code.
 
 ---
 
@@ -148,15 +163,17 @@ The project strongly follows this principle by assigning each class a single res
 
 Examples:
 
-| Class             | Responsibility                       |
-| ----------------- | ------------------------------------ |
-| MachineProcessor  | Production processing                |
-| MachineHealth     | Breakdown and repair management      |
-| MachineStats      | Statistical tracking                 |
-| EventLogger       | Event logging                        |
-| FactoryStatistics | Factory-wide statistics              |
-| Conveyor          | Item transportation and storage      |
-| MachineController | Communication between UI and backend |
+| Class                        | Responsibility                       |
+| ---------------------------- | ------------------------------------ |
+| MachineProcessor             | Production processing                |
+| MachineHealth                | Breakdown and repair management      |
+| MachineStats                 | Statistical tracking                 |
+| EventLogger                  | Event logging                        |
+| FactoryStatistics            | Factory-wide statistics              |
+| Conveyor                     | Item transportation and storage      |
+| MachineController            | Communication between UI and backend |
+| ScenarioFactory              | Creation of scenario strategies      |
+| Concrete Scenario Strategies | Scenario-specific configuration      |
 
 For example, `MachineHealth` manages only:
 
@@ -165,6 +182,8 @@ For example, `MachineHealth` manages only:
 * Health status
 
 It does not handle production logic or statistics collection.
+
+Likewise, each scenario strategy is responsible only for applying its own simulation behavior.
 
 ---
 
@@ -185,6 +204,16 @@ without modifying:
 * `PipelineEngine`
 * `FactorySimulation`
 * `MachineController`
+
+The system also applies OCP through the Strategy Pattern.
+
+New simulation scenarios can be added by implementing:
+
+```cpp
+class HighSpeedStrategy : public IScenarioStrategy
+```
+
+without changing the core simulation workflow inside `PipelineEngine`.
 
 The system grows through extension rather than modification of existing components.
 
@@ -208,7 +237,15 @@ It does not need to know whether the concrete object is:
 
 or any future machine type.
 
-As long as a machine conforms to the `AbstractMachine` interface, it can be used interchangeably.
+Similarly, scenario processing operates through:
+
+```cpp
+IScenarioStrategy
+```
+
+without depending on a specific strategy implementation.
+
+As long as an object conforms to the required interface, it can be substituted without affecting system behavior.
 
 ---
 
@@ -230,6 +267,14 @@ virtual MachineController& getMachineCtrl(size_t i) = 0;
 ```
 
 The UI layer receives only the functionality it requires rather than depending on the entire `FactorySimulation` implementation.
+
+The strategy system follows the same principle through:
+
+```cpp
+class IScenarioStrategy
+```
+
+which exposes only the functionality required to apply a scenario.
 
 This keeps interfaces small, cohesive, and easier to maintain.
 
@@ -259,4 +304,21 @@ instead of concrete machine classes such as:
 
 This means that new machine implementations can be introduced without changing the engine itself.
 
-The use of `IMachineControllerProvider` further demonstrates dependency on abstractions rather than concrete classes, reducing coupling and improving flexibility.
+The scenario system follows the same principle.
+
+Scenario handling depends on:
+
+```cpp
+IScenarioStrategy
+```
+
+rather than concrete classes such as:
+
+* `NormalFlowStrategy`
+* `RandomBreakdownStrategy`
+* `BottleNeckStrategy`
+* `OverFlowStrategy`
+
+This reduces coupling, improves flexibility, and makes future extensions significantly easier.
+
+The use of `IMachineControllerProvider` further demonstrates dependency on abstractions rather than concrete classes throughout the system.
