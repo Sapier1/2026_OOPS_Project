@@ -1,157 +1,262 @@
-# 2026_OOPS_Project
-L factroy project.
+# Code Extensibility and Maintainability
 
-# Extensibility and Maintainability
+## How is the Code Easy to Extend and Modify?
 
-Our backend architecture was designed to support future expansion while minimizing changes to existing code. The system is divided into small, focused components that handle specific responsibilities such as machine processing, machine health management, statistics collection, transportation systems, and simulation control. This modular structure improves maintainability and reduces coupling between subsystems.
+### 1. Easy Addition of New Machine Types
 
-## Adding New Machine Types
+All machine types inherit from the `AbstractMachine` base class.
 
-All machines inherit from `AbstractMachine`, which provides common machine functionality and interfaces.
+Examples include:
 
-To add a new machine type, developers only need to:
+* `Assembler`
+* `Cutter`
+* `Painter`
 
-1. Create a subclass of `AbstractMachine`
-2. Implement machine-specific behavior
-3. Register the machine if necessary
-
-Existing simulation code remains unchanged. This allows new production stages to be introduced without modifying the core simulation framework.
-
-## Modular Subsystems
-
-The backend separates concerns into dedicated components:
-
-* `MachineProcessor` manages product processing logic.
-* `MachineHealth` manages breakdowns and repairs.
-* `MachineStats` tracks machine-level statistics.
-* `FactoryStatistics` tracks factory-wide statistics.
-* `EventLogger` records simulation events.
-
-Because each subsystem has a clearly defined role, modifications to one component rarely affect others.
-
-## Flexible Transportation System
-
-Transportation functionality is isolated into dedicated classes such as:
-
-* `Conveyor`
-* `PipelineEngine`
-* `PipelineBuilder`
-
-Machines interact with transportation systems through well-defined interfaces rather than implementation details. This makes it possible to introduce new transportation mechanisms without changing machine logic.
-
-## Centralized Simulation Management
-
-`FactorySimulation` coordinates the simulation while delegating specialized tasks to dedicated components.
-
-This design allows new systems and features to be integrated with minimal impact on the simulation loop itself.
-
-## Future Extensions
-
-The architecture can be extended to support:
-
-* Additional machine types
-* New transportation mechanisms
-* Advanced maintenance systems
-* Additional statistics modules
-* Alternative event logging systems
-
-Most new features can be implemented through inheritance, composition, or additional modules rather than modifications to existing code.
-
----
-
-# SOLID Principles
-
-## Single Responsibility Principle (SRP)
-
-Each class is responsible for one primary concern.
-
-| Class             | Responsibility                  |
-| ----------------- | ------------------------------- |
-| FactorySimulation | Simulation coordination         |
-| MachineProcessor  | Product processing              |
-| MachineHealth     | Breakdown and repair management |
-| FactoryStatistics | Factory-wide statistics         |
-| MachineStats      | Machine-level statistics        |
-| EventLogger       | Event recording                 |
-| PipelineEngine    | Transportation management       |
-
-This separation improves readability, maintainability, and testability.
-
----
-
-## Open/Closed Principle (OCP)
-
-The system is open for extension but closed for modification.
-
-For example, a new machine can be introduced by inheriting from `AbstractMachine`:
+To add a new machine, developers only need to create a new subclass:
 
 ```cpp
-class QualityInspector : public AbstractMachine
-{
-    ...
+class Welder : public AbstractMachine {
+public:
+    string getMachineName() const override;
 };
 ```
 
-The existing simulation framework does not need to be modified.
+The project also uses the `MachineRegistry` registration system:
 
-Similarly, new transportation or statistics modules can be added as independent components.
+```cpp
+REGISTER_MACHINE(Welder)
+```
+
+As a result, new machine types can be introduced without modifying the core simulation logic in `PipelineEngine` or `FactorySimulation`.
 
 ---
 
-## Liskov Substitution Principle (LSP)
+### 2. Separation of Machine Responsibilities
 
-All machine implementations derive from `AbstractMachine`.
+`AbstractMachine` delegates its responsibilities to dedicated components:
 
-As a result, any machine can be used wherever an `AbstractMachine` is expected:
+```cpp
+MachineProcessor m_processor;
+MachineHealth m_health;
+MachineStats m_stats;
+```
+
+Each component has a specific responsibility:
+
+* **MachineProcessor**: production and item processing
+* **MachineHealth**: breakdown and repair management
+* **MachineStats**: performance and statistics tracking
+
+For example, if the breakdown system needs to be changed, only `MachineHealth` must be modified. The processing and statistics systems remain unaffected.
+
+This separation significantly improves maintainability and reduces coupling between subsystems.
+
+---
+
+### 3. Clear Separation Between UI and Simulation Logic
+
+The UI layer never interacts directly with simulation objects.
+
+Instead, it communicates through `MachineController`:
+
+```cpp
+void onRepairClicked();
+void onForceBreakClicked();
+```
+
+The UI also retrieves display data through snapshot structures:
+
+* `MachineSnap`
+* `FactorySnap`
+
+Architecture:
+
+```text
+UI
+ ↓
+MachineController
+ ↓
+Simulation Backend
+```
+
+This design allows the UI framework to be replaced (e.g., ImGui to Qt or a web-based interface) without requiring major changes to the backend simulation code.
+
+---
+
+### 4. Flexible Pipeline Structure
+
+The production line is represented using `PipelineNode`:
+
+```cpp
+struct PipelineNode {
+    AbstractMachine* machine;
+    Conveyor* inputConv;
+    Conveyor* outputConv;
+};
+```
+
+Because the pipeline operates on abstract machine interfaces, production chains can be reconfigured easily.
+
+For example:
+
+```text
+Cutter → Painter → Assembler
+```
+
+can be expanded to:
+
+```text
+Cutter → Welder → Painter → Assembler
+```
+
+with minimal modification to existing code.
+
+---
+
+### 5. Easy Scenario Expansion
+
+Simulation modes are represented using the `SimulationScenario` enumeration:
+
+```cpp
+enum class SimulationScenario {
+    NormalFlow,
+    RandomBreakdown,
+    OverFlow,
+    BottleNeck
+};
+```
+
+Scenario-specific behavior is applied through the pipeline engine.
+
+To introduce a new scenario, such as:
+
+```cpp
+HighSpeedMode
+```
+
+developers primarily need to add the new scenario definition and its associated behavior, while leaving the rest of the simulation architecture unchanged.
+
+---
+
+# How Does the Design Satisfy SOLID Principles?
+
+## S — Single Responsibility Principle (SRP)
+
+A class should have only one reason to change.
+
+The project strongly follows this principle by assigning each class a single responsibility.
+
+Examples:
+
+| Class             | Responsibility                       |
+| ----------------- | ------------------------------------ |
+| MachineProcessor  | Production processing                |
+| MachineHealth     | Breakdown and repair management      |
+| MachineStats      | Statistical tracking                 |
+| EventLogger       | Event logging                        |
+| FactoryStatistics | Factory-wide statistics              |
+| Conveyor          | Item transportation and storage      |
+| MachineController | Communication between UI and backend |
+
+For example, `MachineHealth` manages only:
+
+* Breakdown probability
+* Repair progress
+* Health status
+
+It does not handle production logic or statistics collection.
+
+---
+
+## O — Open/Closed Principle (OCP)
+
+Software entities should be open for extension but closed for modification.
+
+The `AbstractMachine` hierarchy demonstrates this principle.
+
+New machine types can be introduced by creating subclasses:
+
+```cpp
+class Welder : public AbstractMachine
+```
+
+without modifying:
+
+* `PipelineEngine`
+* `FactorySimulation`
+* `MachineController`
+
+The system grows through extension rather than modification of existing components.
+
+---
+
+## L — Liskov Substitution Principle (LSP)
+
+Objects of derived classes should be replaceable with objects of their base class.
+
+`PipelineEngine` operates entirely through `AbstractMachine*` references:
 
 ```cpp
 AbstractMachine* machine;
 ```
 
-The simulation logic operates on abstractions rather than concrete machine types, allowing subclasses to be substituted without affecting correctness.
+It does not need to know whether the concrete object is:
+
+* `Cutter`
+* `Painter`
+* `Assembler`
+
+or any future machine type.
+
+As long as a machine conforms to the `AbstractMachine` interface, it can be used interchangeably.
 
 ---
 
-## Interface Segregation Principle (ISP)
+## I — Interface Segregation Principle (ISP)
 
-Responsibilities are divided into small, specialized components rather than large monolithic classes.
+Clients should not be forced to depend on interfaces they do not use.
 
-Examples include:
+The project provides a focused interface through:
 
-* `MachineProcessor`
-* `MachineHealth`
-* `MachineStats`
-* `FactoryStatistics`
-* `EventLogger`
+```cpp
+class IMachineControllerProvider
+```
 
-Each component exposes only the functionality relevant to its specific responsibility.
+which exposes only:
 
----
+```cpp
+virtual size_t getMachineCount() const = 0;
+virtual MachineController& getMachineCtrl(size_t i) = 0;
+```
 
-## Dependency Inversion Principle (DIP)
+The UI layer receives only the functionality it requires rather than depending on the entire `FactorySimulation` implementation.
 
-High-level simulation logic is separated from low-level implementation details.
-
-`FactorySimulation` coordinates the system while delegating specialized work to dedicated components such as:
-
-* `MachineProcessor`
-* `MachineHealth`
-* `PipelineEngine`
-* `FactoryStatistics`
-
-This reduces coupling and allows implementations to evolve independently.
-
-In addition, machine behavior depends on abstract machine interfaces rather than concrete machine implementations, improving flexibility and maintainability.
+This keeps interfaces small, cohesive, and easier to maintain.
 
 ---
 
-## Design Benefits
+## D — Dependency Inversion Principle (DIP)
 
-The architecture provides several advantages:
+High-level modules should depend on abstractions rather than concrete implementations.
 
-* Easy addition of new machine types
-* Minimal modification of existing code
-* Reduced coupling between subsystems
-* Improved maintainability and readability
-* Better support for future feature expansion
-* Strong alignment with object-oriented design principles and SOLID principles
+The project relies heavily on abstraction through:
+
+```cpp
+AbstractMachine
+```
+
+For example, `PipelineEngine` depends on:
+
+```cpp
+AbstractMachine*
+```
+
+instead of concrete machine classes such as:
+
+* `Cutter`
+* `Painter`
+* `Assembler`
+
+This means that new machine implementations can be introduced without changing the engine itself.
+
+The use of `IMachineControllerProvider` further demonstrates dependency on abstractions rather than concrete classes, reducing coupling and improving flexibility.
