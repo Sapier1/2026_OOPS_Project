@@ -7,6 +7,7 @@ using namespace std;
 
 #include "AbstractMachine.h"
 #include "Conveyor.h"
+#include "ScenarioFactory.h"
 #include "../MachineController.h"
 #include "../MachineSnap.h"
 #include "../FactorySnap.h"
@@ -34,6 +35,7 @@ public:
     void applyScenario(SimulationScenario s);
     void reset();
 
+    vector<PipelineNode>& getNodes();
     vector<MachineSnap> getMachineSnaps() const;
     vector<ConveyorSnap> getConveyorSnaps() const;
     int getWipCount() const;

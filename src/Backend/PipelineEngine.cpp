@@ -170,34 +170,13 @@ void PipelineEngine::stepAutoRepair(int tick, PipelineStepResult& result) {
     }
 }
 
-void PipelineEngine::applyScenario(SimulationScenario s) {
-    for (auto& node : m_nodes) {
-        node.machine->setProcessTime(node.machine->getProcessTime());
-    }
-    
-    switch (s) {
-        case SimulationScenario::NormalFlow:
-            for (auto& node : m_nodes) {
-                node.machine->setBreakdownProb(node.machine->getBreakdownProb());
-                node.machine->setProcessTime(node.machine->getProcessTime());
-            }
-             break;
-        case SimulationScenario::RandomBreakdown:
-            for (auto& node : m_nodes)
-                node.machine->setBreakdownProb(PROB_BREAKDOWN);
-             break;
-        case SimulationScenario::BottleNeck:
-             // 두 번째 기계(index 1)에만 배수 적용 — 이름에 의존하지 않음
-            if (m_nodes.size() > 1)
-                m_nodes[1].machine->setProcessTimeMultiplier(3.0f); // 3배 느리게
-            break;
-        case SimulationScenario::OverFlow:
-             for (auto& node : m_nodes)
-                if (node.machine->getMachineName() == "Assembler")
-                    node.machine->setProcessTime(10);
-             break;
-        default:
-            break;
+void PipelineEngine::applyScenario(SimulationScenario s)
+{
+    auto strategy = ScenarioFactory::create(s);
+
+    if (strategy)
+    {
+        strategy->apply(*this);
     }
 }
 
@@ -237,6 +216,10 @@ MachineSnap PipelineEngine::makeMachineSnap(const AbstractMachine& m) const {
         m.getHealth(),
         m.getProcessTime()
     };
+}
+
+vector<PipelineNode>& PipelineEngine::getNodes() {
+    return m_nodes;
 }
 
 ConveyorSnap PipelineEngine::makeConveyorSnap(const Conveyor& c) const {

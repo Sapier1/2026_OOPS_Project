@@ -38,6 +38,11 @@ set(SOURCES
     src/Backend/MachineProcessor.cpp
     src/Backend/MachineHealth.cpp
     src/Backend/MachineStats.cpp
+    src/Backend/ScenarioFactory.cpp
+    src/Backend/RandomBreakdownStrategy.cpp
+    src/Backend/OverFlowStrategy.cpp
+    src/Backend/BottleNeckStrategy.cpp
+    src/Backend/NormalFlowStrategy.cpp
     # Add your new source files here. Example:
     # src/GameManager.cpp
     # src/Player.cpp
